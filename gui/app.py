@@ -1,6 +1,7 @@
 import customtkinter
 import os
 from PIL import Image
+from views.home_view import HomeView
 
 
 class App(customtkinter.CTk):
@@ -61,7 +62,7 @@ class App(customtkinter.CTk):
         self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
 
         # create home frame
-        self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.home_frame = HomeView(self)
         self.home_frame.grid_columnconfigure(0, weight=1)
 
         # create second frame
