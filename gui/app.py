@@ -8,7 +8,7 @@ class App(customtkinter.CTk):
         super().__init__()
 
         self.title("Ceres")
-        self.geometry("700x450")
+        self.geometry("800x550")
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
