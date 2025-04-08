@@ -1,7 +1,7 @@
 import customtkinter
 import os
 from PIL import Image
-from views.home_view import HomeView
+from gui.views.home_view import HomeView
 
 
 class App(customtkinter.CTk):
@@ -113,9 +113,4 @@ class App(customtkinter.CTk):
 
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
-
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
 
