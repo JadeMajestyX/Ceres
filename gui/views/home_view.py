@@ -1,5 +1,7 @@
 # home_view.py
 import customtkinter
+from PIL import Image  # Import PIL for image handling
+
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -18,7 +20,26 @@ class HomeView(customtkinter.CTkFrame):
         # Create a top-left bordered box with specified dimensions
         self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=10)
         self.bordered_box.grid(row=0, column=0, padx=(20, 10), pady=(20, 10), sticky="nsew")
-        
+
+        # Add an image label to display the status
+        self.status_image_label = customtkinter.CTkLabel(self.bordered_box, text="")
+        self.status_image_label.pack(padx=10, pady=10)
+
+        # Function to update the image based on values
+        def update_status_image(values):
+            if all(value == "good" for value in values):
+                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(100, 100))
+                self.status_image_label.configure(image=image)
+            elif sum(1 for value in values if value == "bad") <= 2:
+                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(100, 100))
+                self.status_image_label.configure(image=image)
+            else:
+                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(100, 100))
+                self.status_image_label.configure(image=image)
+
+        # Replace these with actual logic to determine the status of each value
+        example_values = ["good", "bad", "good", "bad"]
+        update_status_image(example_values)
         #############################################
         ### Finzaliza Recuadro superior izquierdo ###
         ############################################# 
