@@ -22,9 +22,9 @@ jobs:
 
       - name: Merge main into all branches
         run: |
-          branches=$(git branch -r | grep -v "main" | sed 's/origin\///')
-          for branch in $branches; do
-            git checkout $branch
-            git merge origin/main --no-edit
-            git push origin $branch
-          done
+           branches=$(git branch -r | grep -v "main" | sed 's/origin\///')
+           for branch in $branches; do
+             git checkout $branch
+             git merge origin/main --no-edit --allow-unrelated-histories
+             git push origin $branch
+           done
