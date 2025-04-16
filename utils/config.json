@@ -1,0 +1,20 @@
+{
+    "actuadores": {
+      "bomba": {
+        "pin": 17,
+        "tiempo_activacion_segundos": 3,
+        "status": "False"
+      },
+      "ph": {
+        "pin": 27,
+        "tiempo_activacion_segundos": 5,
+        "status": "False"
+      },
+      "phless": {
+        "pin": 22,
+        "tiempo_activacion_segundos": 5,
+        "status": "True"
+      }
+    }
+  }
+  
