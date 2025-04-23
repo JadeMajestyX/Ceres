@@ -2,7 +2,7 @@ import customtkinter
 import os
 from PIL import Image
 from gui.views.home_view import HomeView
-
+from gui.views.plants_view import PlantsView
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -71,6 +71,9 @@ class App(customtkinter.CTk):
         # create third frame
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
 
+        self.plants_frame = PlantsView(self) #plantas
+
+
         # select default frame
         self.select_frame_by_name("home")
 
@@ -95,9 +98,9 @@ class App(customtkinter.CTk):
         else:
             self.third_frame.grid_forget()
         if name == "frame_4":
-            self.third_frame.grid(row=0, column=1, sticky="nsew")
+              self.plants_frame.grid(row=0, column=1, sticky="nsew")  #aquí estaba mal, se repetia el third_frame
         else:
-            self.third_frame.grid_forget()
+            self.plants_frame.grid_forget()
 
     def home_button_event(self):
         self.select_frame_by_name("home")
