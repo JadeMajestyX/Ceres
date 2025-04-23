@@ -1,4 +1,8 @@
 {
+    "planta":{
+      "id": 1,
+      "time": "2025-04-22"
+    },
     "actuadores": {
       "bomba": {
         "pin": 17,

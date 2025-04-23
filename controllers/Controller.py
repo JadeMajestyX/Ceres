@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
-from abc import ABC, abstractmethod
  
-class Controller(ABC):
+class Controller():
     def __init__(self, pin: int):
         self.pin = pin
         GPIO.setmode(GPIO.BCM)
