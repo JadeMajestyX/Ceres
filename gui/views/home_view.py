@@ -81,7 +81,7 @@ class HomeView(customtkinter.CTkFrame):
         self.notifications_label.grid(row=0, column=0, padx=10, pady=(5, 15), sticky="ew")
 
         # Función para agregar notificaciones con el formato deseado
-        def add_notification(text):
+        def add_notification(text, severity="info"):
             notification_box = customtkinter.CTkFrame(
             self.scrollable_frame, 
             fg_color="#E0F7FA", 
@@ -90,12 +90,19 @@ class HomeView(customtkinter.CTkFrame):
             notification_box.grid(row=self.scrollable_frame.winfo_children().__len__(), column=0, padx=5, pady=5, sticky="ew")
             notification_box.grid_columnconfigure((0, 1), weight=1)
 
+            # Determinar el color del icono según la severidad
+            icon_color = "#114C5F"  # Azul por defecto
+            if severity == "warning":
+                icon_color = "#FFA500"  # Amarillo
+            elif severity == "error":
+                icon_color = "#FF0000"  # Rojo
+
             # Icono de información
             notification_icon = customtkinter.CTkLabel(
             notification_box,
-            text="ℹ️",
+            text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
             font=("Arial", 16, "bold"),
-            text_color="#114C5F"
+            text_color=icon_color
             )
             notification_icon.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
@@ -110,12 +117,12 @@ class HomeView(customtkinter.CTkFrame):
             notification_content.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
         # Agregar notificaciones de ejemplo
-        add_notification("Temperatura 2°C más alta de lo establecido.")
-        add_notification("pH bajo: 6.2 (fuera del rango óptimo 6.5-7.5).")
-        add_notification("Conductividad crítica: 1.8 S/m (rango óptimo: 0.5-1.5 S/m).")
-        add_notification("Nutrientes bajos - agregar solución nutritiva.")
-        add_notification("Fluctuación inusual en la temperatura nocturna.")
-        add_notification("Nivel de agua bajo - rellene el tanque.")
+        add_notification("Temperatura 2°C más alta de lo establecido.", severity="warning")
+        add_notification("pH bajo: 6.2 (fuera del rango óptimo 6.5-7.5).", severity="error")
+        add_notification("Conductividad crítica: 1.8 S/m (rango óptimo: 0.5-1.5 S/m).", severity="error")
+        add_notification("Nutrientes bajos - agregar solución nutritiva.", severity="info")
+        add_notification("Fluctuación inusual en la temperatura nocturna.", severity="warning")
+        add_notification("Nivel de agua bajo - rellene el tanque.", severity="error")
 
         ###########################################
         ### Finzaliza Recuadro superior derecho ###
