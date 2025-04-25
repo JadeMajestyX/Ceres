@@ -1,6 +1,5 @@
 import json
 import time
-import threading
 from controllers.BombaController import BombaController
 from controllers.PhController import PhController
 from models.parametrosModel import parametrosModel
