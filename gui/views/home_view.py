@@ -44,8 +44,6 @@ class HomeView(customtkinter.CTkFrame):
         ### Finzaliza Recuadro superior izquierdo ###
         ############################################# 
 
-
-
         #####################################
         #### Recuadro superior derecho ######
         #####################################
@@ -58,31 +56,77 @@ class HomeView(customtkinter.CTkFrame):
             row=0, column=1, padx=(10, 20), pady=(20, 10), sticky="nsew"
         )
 
-        # Add a label inside the notifications box
+        # Configure grid weights for rescalability
+        self.notifications_box.grid_rowconfigure(0, weight=1)
+        self.notifications_box.grid_columnconfigure(0, weight=1)
+
+        # Add a scrollable frame inside the notifications box
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(
+            self.notifications_box, 
+            fg_color="#9CD2D3", 
+            corner_radius=10,
+            width=350  # Ancho aumentado para las notificaciones
+        )
+        self.scrollable_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+        # Add a label inside the scrollable frame
         self.notifications_label = customtkinter.CTkLabel(
-            self.notifications_box, text="Notificaciones", text_color="#114C5F"
+            self.scrollable_frame, 
+            text="Notificaciones", 
+            text_color="#114C5F",
+            font=("Arial", 16, "bold"),
+            anchor="center"  # Centra el texto de la etiqueta
         )
-        self.notifications_label.pack(padx=10, pady=10)
+        self.notifications_label.grid(row=0, column=0, padx=10, pady=(5, 15), sticky="ew")
 
-        # Add a label for pH alert
-        self.ph_alert_label = customtkinter.CTkLabel(
-            self.notifications_box, text="⚠️ pH bajo detectado", text_color="#FF0000"
-        )
-        self.ph_alert_label.pack(padx=10, pady=(5, 10))
+        # Función para agregar notificaciones con el formato deseado
+        def add_notification(text, severity="info"):
+            notification_box = customtkinter.CTkFrame(
+            self.scrollable_frame, 
+            fg_color="#E0F7FA", 
+            corner_radius=10
+            )
+            notification_box.grid(row=self.scrollable_frame.winfo_children().__len__(), column=0, padx=5, pady=5, sticky="ew")
+            notification_box.grid_columnconfigure((0, 1), weight=1)
 
-        # Add a label for nutrient alert
-        self.nutrient_alert_label = customtkinter.CTkLabel(
-            self.notifications_box,
-            text="⚠️ Nutrientes insuficientes",
-            text_color="#FF0000",
-        )
-        self.nutrient_alert_label.pack(padx=10, pady=(5, 10))
-        
+            # Determinar el color del icono según la severidad
+            icon_color = "#114C5F"  # Azul por defecto
+            if severity == "warning":
+                icon_color = "#FFA500"  # Amarillo
+            elif severity == "error":
+                icon_color = "#FF0000"  # Rojo
+
+            # Icono de información
+            notification_icon = customtkinter.CTkLabel(
+            notification_box,
+            text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
+            font=("Arial", 16, "bold"),
+            text_color=icon_color
+            )
+            notification_icon.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+            # Contenido de la notificación justificado y en una sola línea
+            notification_content = customtkinter.CTkLabel(
+            notification_box,
+            text=text,
+            text_color="#114C5F",
+            font=("Arial", 14),
+            anchor="w"  # Alinea el texto a la izquierda
+            )
+            notification_content.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+
+        # Agregar notificaciones de ejemplo
+        add_notification("Temperatura 2°C más alta de lo establecido.", severity="warning")
+        add_notification("pH bajo: 6.2 (fuera del rango óptimo 6.5-7.5).", severity="error")
+        add_notification("Conductividad crítica: 1.8 S/m (rango óptimo: 0.5-1.5 S/m).", severity="error")
+        add_notification("Nutrientes bajos - agregar solución nutritiva.", severity="info")
+        add_notification("Fluctuación inusual en la temperatura nocturna.", severity="warning")
+        add_notification("Nivel de agua bajo - rellene el tanque.", severity="error")
+
         ###########################################
         ### Finzaliza Recuadro superior derecho ###
         ###########################################
-
-
 
         #########################
         ### Recuadro inferior ###
@@ -99,7 +143,7 @@ class HomeView(customtkinter.CTkFrame):
         ####  Caja Numero 1   #####
         ###########################
 
-      # Add a bordered box inside the bottom bordered box (left side)
+        # Add a bordered box inside the bottom bordered box (left side)
         self.inner_bordered_box = customtkinter.CTkFrame(
             self.bottom_bordered_box, 
             fg_color="#0799B6",  # Fondo blanco (como en la imagen)
@@ -107,7 +151,6 @@ class HomeView(customtkinter.CTkFrame):
             border_width=1,
             border_color="#E0E0E0"  # Borde gris claro (más discreto que en tu versión original)
         )
-
         self.inner_bordered_box.grid(row=0, column=0, padx=(20, 10), pady=20, sticky="nsew")
 
         # Configuración de grid (igual que antes)
@@ -146,7 +189,6 @@ class HomeView(customtkinter.CTkFrame):
         ################################
         ### Finzaliza Caja Numero 1 ####
         ################################
-
 
         ######################################
         ######   Inicia Caja Numero 2  #######
@@ -196,8 +238,6 @@ class HomeView(customtkinter.CTkFrame):
         ###### Finzaliza Caja Numero 2 ########
         #######################################
 
-
-
         ####################################
         ####### Inicia Caja Numero 3########
         ####################################
@@ -246,9 +286,6 @@ class HomeView(customtkinter.CTkFrame):
         ####### Finaliza Caja Numero 3 ########
         #######################################
 
-
-        
-        
         ########################################
         #######  Inicia Caja Numero 4  #########
         ########################################
@@ -296,7 +333,6 @@ class HomeView(customtkinter.CTkFrame):
         ##########################################
         #######  Finaliza Caja Numero 4  #########
         ##########################################
-
 
         ##################################
         ### Finaliza Recuadro inferior ###
