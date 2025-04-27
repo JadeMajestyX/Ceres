@@ -16,25 +16,42 @@ class HomeView(customtkinter.CTkFrame):
         ###################################
         ### Recuadro superior izquierdo ###
         ###################################
-
         # Create a top-left bordered box with specified dimensions
-        self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=10)
-        self.bordered_box.grid(row=0, column=0, padx=(20, 10), pady=(20, 10), sticky="nsew")
+        self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=15)
+        self.bordered_box.grid(row=0, column=0, padx=(30, 15), pady=(30, 15), sticky="nsew")
+
+        # Add a label to display the plant being cultivated
+        self.plant_label = customtkinter.CTkLabel(
+            self.bordered_box,
+            text="Cultivo: Tomates",  # Replace "Tomates" with the actual plant name dynamically if needed
+            font=("Arial", 28, "bold"),  # Larger font size
+            text_color="#FFFFFF"  # White color for better contrast
+        )
+        self.plant_label.pack(padx=20, pady=(15, 10))
 
         # Add an image label to display the status
         self.status_image_label = customtkinter.CTkLabel(self.bordered_box, text="")
-        self.status_image_label.pack(padx=10, pady=10)
+        self.status_image_label.pack(padx=20, pady=(10, 10))
+
+        # Add a label to display the number of days the plant has been growing
+        self.days_label = customtkinter.CTkLabel(
+            self.bordered_box,
+            text="Días de cultivo: 15",  # Replace "15" with the actual number of days dynamically if needed
+            font=("Arial", 24, "bold"),  # Larger font size
+            text_color="#114C5F"
+        )
+        self.days_label.pack(padx=20, pady=(10, 15))
 
         # Function to update the image based on values
         def update_status_image(values):
             if all(value == "good" for value in values):
-                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(100, 100))
+                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(140, 140))
                 self.status_image_label.configure(image=image)
             elif sum(1 for value in values if value == "bad") <= 2:
-                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(100, 100))
+                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(140, 140))
                 self.status_image_label.configure(image=image)
             else:
-                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(100, 100))
+                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(140, 140))
                 self.status_image_label.configure(image=image)
 
         # Replace these with actual logic to determine the status of each value
