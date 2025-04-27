@@ -21,25 +21,3 @@ class MedicionesModel(Model):
             self.connection.commit()
         finally:
             self.close()
-
-class MedicionesModel(Model):
-    def __init__(self):
-        super().__init__()
-
-    def obtener_mediciones(self, planta_id):
-        try:
-            self.cursor.execute("SELECT * FROM mediciones WHERE planta_id = %s ORDER BY id DESC LIMIT 1", (planta_id,))
-            return self.cursor.fetchone()
-        finally:
-            self.close()
-
-
-    def agregar_medicion(self,planta_id ,temp_value: float ,ph_value: float ,ec_value: float, water_value: float):
-        try:
-            self.cursor.execute(
-                "INSERT INTO mediciones (planta_id, temp_value, ph_value, ec_value, water_value) VALUES (%s,%s,%s,%s,%s)",
-                (planta_id, temp_value, ph_value, ec_value, water_value)
-            )
-            self.connection.commit()
-        finally:
-            self.close()
