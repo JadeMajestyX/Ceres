@@ -21,3 +21,21 @@ class MedicionesModel(Model):
             self.connection.commit()
         finally:
             self.close()
+
+    def obtener_medicion(self, planta_id, tipo):
+        try:
+            self.cursor.execute(
+                "SELECT * FROM mediciones WHERE planta_id = %s ORDER BY id DESC LIMIT 1",
+                (planta_id,)
+            )
+            medicion = self.cursor.fetchone()
+            if tipo == "temp":
+                return medicion[2]
+            elif tipo == "ph":
+                return medicion[3]
+            elif tipo == "ec":
+                return medicion[4]
+            elif tipo == "water":
+                return medicion[5]
+        finally:
+            self.close()

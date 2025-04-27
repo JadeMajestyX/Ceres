@@ -1,7 +1,10 @@
 # home_view.py
 import customtkinter
 from PIL import Image  # Import PIL for image handling
-
+import random
+from models.medicionesModel import MedicionesModel
+from utils.functions.functions import get_planta_id
+import json
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -188,7 +191,7 @@ class HomeView(customtkinter.CTkFrame):
         # Valor principal (ajustado a colores de imagen)
         self.value_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
-            text="0.94 S/m",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ec")) + " S/m",
             font=("Arial", 28, "bold"),
             text_color="#FFFFFF"  # Mismo color que el icono
         )
@@ -236,7 +239,7 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (7.2 ph) con tamaño aumentado y en negrita
         self.ph_value_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
-            text="7.2 ph",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ph")) + " ph",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo color de texto que el primero
         )
@@ -281,10 +284,9 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.temp_icon_label.grid(row=0, column=0, pady=(10, 5))
 
-        # Etiqueta para el valor (27 °C) con tamaño aumentado y en negrita
         self.temp_value_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text="27 °C",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp")) + " °C",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
@@ -332,11 +334,12 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (30)
         self.water_level_value = customtkinter.CTkLabel(
             self.far_right_bordered_box,
-            text="30",
+            text=str(int(MedicionesModel().obtener_medicion(get_planta_id(), "water"))) + " %",
             font=("Arial", 28, "bold"),  # Negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
         self.water_level_value.grid(row=1, column=0, pady=(5, 5))
+
 
         # Etiqueta para la descripción
         self.water_level_title = customtkinter.CTkLabel(

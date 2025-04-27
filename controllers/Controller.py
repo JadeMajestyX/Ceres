@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import json
  
 class Controller():
     def __init__(self, pin: int):
@@ -15,3 +16,4 @@ class Controller():
 
     def cleanup(self): # Cleanup GPIO settings
         GPIO.cleanup()
+
