@@ -235,19 +235,19 @@ class HomeView(customtkinter.CTkFrame):
         self.inner_bordered_box.grid_rowconfigure(2, weight=1)
         self.inner_bordered_box.grid_columnconfigure(0, weight=1)
 
-        # Icono (ajustado a colores de imagen)
+        # Icono (usando una imagen en lugar de texto)
+        self.icon_image = customtkinter.CTkImage(Image.open("icons/2.png"), size=(72, 72))  # Tamaño aumentado
         self.icon_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
-            text="⚡",
-            font=("Arial", 36, "bold"),
-            text_color="#C39C00"  # Verde azulado oscuro (como el texto de la imagen)
+            image=self.icon_image,
+            text=""
         )
         self.icon_label.grid(row=0, column=0, pady=(10, 5))
 
         # Valor principal (ajustado a colores de imagen)
         self.value_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
-            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ec")) + " S/m",
+            text="0.94 S/m",
             font=("Arial", 28, "bold"),
             text_color="#FFFFFF"  # Mismo color que el icono
         )
@@ -283,19 +283,19 @@ class HomeView(customtkinter.CTkFrame):
         self.additional_bordered_box.grid_rowconfigure((0, 1, 2), weight=1)
         self.additional_bordered_box.grid_columnconfigure(0, weight=1)
 
-        # Icono para la caja adicional (en vertical)
+        # Icono para la caja adicional (usando una imagen en lugar de texto)
+        self.ph_icon_image = customtkinter.CTkImage(Image.open("icons/1.png"), size=(72, 72))  # Tamaño ajustado
         self.ph_icon_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
-            text="💧",  # Icono de gota de agua
-            font=("Arial", 48, "bold"),  # Tamaño más grande y en negrita
-            text_color="#006666"  # Mismo color de texto que el primero
+            image=self.ph_icon_image,
+            text=""
         )
         self.ph_icon_label.grid(row=0, column=0, pady=(10, 5))
 
         # Etiqueta para el valor (7.2 ph) con tamaño aumentado y en negrita
         self.ph_value_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
-            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ph")) + " ph",
+            text="7.2 ph",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo color de texto que el primero
         )
@@ -331,18 +331,19 @@ class HomeView(customtkinter.CTkFrame):
         self.center_bordered_box.grid_rowconfigure((0, 1, 2), weight=1)
         self.center_bordered_box.grid_columnconfigure(0, weight=1)
 
-        # Icono para la caja central (en vertical)
+        # Icono para la caja central (en vertical) usando una imagen
+        self.temp_icon_image = customtkinter.CTkImage(Image.open("icons/3.png"), size=(62, 78))  # Tamaño ajustado
         self.temp_icon_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text="🌡️",  # Icono de termómetro
-            font=("Arial", 48, "bold"),  # Tamaño más grande y en negrita
-            text_color="#006666"  # Mismo esquema de colores
+            image=self.temp_icon_image,
+            text=""
         )
         self.temp_icon_label.grid(row=0, column=0, pady=(10, 5))
 
+        # Etiqueta para el valor (27 °C) con tamaño aumentado y en negrita
         self.temp_value_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp")) + " °C",
+            text="27 °C",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
@@ -378,24 +379,23 @@ class HomeView(customtkinter.CTkFrame):
         self.far_right_bordered_box.grid_rowconfigure((0, 1, 2), weight=1)
         self.far_right_bordered_box.grid_columnconfigure(0, weight=1)
 
-        # Icono para el nivel del agua
+        # Icono para el nivel del agua (usando una imagen en lugar de texto)
+        self.water_level_icon_image = customtkinter.CTkImage(Image.open("icons/4.png"), size=(62, 72))  # Reducir ancho
         self.water_level_icon = customtkinter.CTkLabel(
             self.far_right_bordered_box,
-            text="🚰",  # Icono de grifo de agua
-            font=("Arial", 48, "bold"),
-            text_color="#006666"  # Mismo esquema de colores
+            image=self.water_level_icon_image,
+            text=""
         )
         self.water_level_icon.grid(row=0, column=0, pady=(10, 5))
 
         # Etiqueta para el valor (30)
         self.water_level_value = customtkinter.CTkLabel(
             self.far_right_bordered_box,
-            text=str(int(MedicionesModel().obtener_medicion(get_planta_id(), "water"))) + " %",
+            text="30",
             font=("Arial", 28, "bold"),  # Negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
         self.water_level_value.grid(row=1, column=0, pady=(5, 5))
-
 
         # Etiqueta para la descripción
         self.water_level_title = customtkinter.CTkLabel(
