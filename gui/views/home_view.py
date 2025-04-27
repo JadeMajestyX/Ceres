@@ -1,9 +1,8 @@
-# home_view.py
 import customtkinter
 from PIL import Image  # Import PIL for image handling
-import random
 from models.medicionesModel import MedicionesModel
 from utils.functions.functions import get_planta_id
+from models.alertasModel import AlertasModel
 import json
 
 class HomeView(customtkinter.CTkFrame):
@@ -16,9 +15,46 @@ class HomeView(customtkinter.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
+        # Listas de severidades
+        self.errors = [
+            "No se detectó el Arduino",
+            "Los datos del Arduino son incorrectos",
+            "No se recibieron datos del Arduino",
+            "No esta fluyendo el agua",
+            "Los niveles de pH son demasiado altos",
+            "Los niveles de pH son demasiado bajos",
+            "La temperatura del agua es demasiado alta",
+            "La temperatura del agua es demasiado baja",
+            "La conductividad es demasiado alta",
+            "La conductividad es demasiado baja",
+            "El nivel de agua es demasiado bajo",
+            "No se detecto el sensor de pH",
+            "No se detecto el sensor de temperatura",
+            "No se detecto el sensor de conductividad",
+            "No se detecto el sensor de nivel de agua",
+            "No se detecto el sensor de flujo",
+        ]
+
+        self.warnings = [
+            "El nivel de agua es bajo",
+            "El nivel de agua es alto",
+            "El pH es bajo",
+            "El pH es alto",
+            "El agua está fría",
+            "El agua está caliente",
+            "La Conductividad es baja",
+            "La Conductividad es alta",
+        ]
+        self.infos = [
+            "Se recomienda calibrar el sensor de pH",
+            "Se recomienda calibrar el sensor de conductividad",
+            "Se recomienda mover el sensor de nivel de agua",
+        ]
+
         ###################################
         ### Recuadro superior izquierdo ###
         ###################################
+        # Create a top-left bordered box with specified dimensions
         # Create a top-left bordered box with specified dimensions
         self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=15)
         self.bordered_box.grid(row=0, column=0, padx=(30, 15), pady=(30, 15), sticky="nsew")
@@ -26,9 +62,9 @@ class HomeView(customtkinter.CTkFrame):
         # Add a label to display the plant being cultivated
         self.plant_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Cultivo: Tomates",  # Replace "Tomates" with the actual plant name dynamically if needed
-            font=("Arial", 28, "bold"),  # Larger font size
-            text_color="#FFFFFF"  # White color for better contrast
+            text="Cultivo: Tomates",
+            font=("Arial", 28, "bold"),
+            text_color="#FFFFFF"
         )
         self.plant_label.pack(padx=20, pady=(15, 10))
 
@@ -39,11 +75,13 @@ class HomeView(customtkinter.CTkFrame):
         # Add a label to display the number of days the plant has been growing
         self.days_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Días de cultivo: 15",  # Replace "15" with the actual number of days dynamically if needed
-            font=("Arial", 24, "bold"),  # Larger font size
+            text="Días de cultivo: 15",
+            font=("Arial", 24, "bold"),
             text_color="#114C5F"
         )
         self.days_label.pack(padx=20, pady=(10, 15))
+
+        alertas = AlertasModel().obtener_alertas(get_planta_id())
 
         # Function to update the image based on values
         def update_status_image(values):
@@ -60,9 +98,6 @@ class HomeView(customtkinter.CTkFrame):
         # Replace these with actual logic to determine the status of each value
         example_values = ["good", "bad", "good", "bad"]
         update_status_image(example_values)
-        #############################################
-        ### Finzaliza Recuadro superior izquierdo ###
-        ############################################# 
 
         #####################################
         #### Recuadro superior derecho ######
@@ -82,71 +117,93 @@ class HomeView(customtkinter.CTkFrame):
 
         # Add a scrollable frame inside the notifications box
         self.scrollable_frame = customtkinter.CTkScrollableFrame(
-            self.notifications_box, 
-            fg_color="#9CD2D3", 
+            self.notifications_box,
+            fg_color="#9CD2D3",
             corner_radius=10,
-            width=350  # Ancho aumentado para las notificaciones
+            width=350
         )
         self.scrollable_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
-        # Add a label inside the scrollable frame
+        # Title label
         self.notifications_label = customtkinter.CTkLabel(
-            self.scrollable_frame, 
-            text="Notificaciones", 
+            self.scrollable_frame,
+            text="Notificaciones",
             text_color="#114C5F",
             font=("Arial", 16, "bold"),
-            anchor="center"  # Centra el texto de la etiqueta
+            anchor="center"
         )
         self.notifications_label.grid(row=0, column=0, padx=10, pady=(5, 15), sticky="ew")
 
-        # Función para agregar notificaciones con el formato deseado
-        def add_notification(text, severity="info"):
-            notification_box = customtkinter.CTkFrame(
-            self.scrollable_frame, 
-            fg_color="#E0F7FA", 
-            corner_radius=10
+        # Lista de widgets de notificación para evitar parpadeo
+        self.notification_widgets = []  # [(frame, icon_label, content_label)]
+
+        def add_notification_widget(text, severity="info"):
+            # Crea el frame y devuelve sus componentes
+            frame = customtkinter.CTkFrame(
+                self.scrollable_frame,
+                fg_color="#E0F7FA",
+                corner_radius=10
             )
-            notification_box.grid(row=self.scrollable_frame.winfo_children().__len__(), column=0, padx=5, pady=5, sticky="ew")
-            notification_box.grid_columnconfigure((0, 1), weight=1)
-
-            # Determinar el color del icono según la severidad
-            icon_color = "#114C5F"  # Azul por defecto
-            if severity == "warning":
-                icon_color = "#FFA500"  # Amarillo
-            elif severity == "error":
-                icon_color = "#FF0000"  # Rojo
-
-            # Icono de información
-            notification_icon = customtkinter.CTkLabel(
-            notification_box,
-            text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
-            font=("Arial", 16, "bold"),
-            text_color=icon_color
+            frame.grid_columnconfigure((0, 1), weight=1)
+            icon_label = customtkinter.CTkLabel(
+                frame,
+                text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
+                font=("Arial", 16, "bold"),
+                text_color=("#114C5F" if severity == "info" else ("#FFA500" if severity == "warning" else "#FF0000"))
             )
-            notification_icon.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-
-            # Contenido de la notificación justificado y en una sola línea
-            notification_content = customtkinter.CTkLabel(
-            notification_box,
-            text=text,
-            text_color="#114C5F",
-            font=("Arial", 14),
-            anchor="w"  # Alinea el texto a la izquierda
+            icon_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+            content_label = customtkinter.CTkLabel(
+                frame,
+                text=text,
+                text_color="#114C5F",
+                font=("Arial", 14),
+                anchor="w"
             )
-            notification_content.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+            content_label.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+            return frame, icon_label, content_label
 
-        # Agregar notificaciones de ejemplo
-        add_notification("Temperatura 2°C más alta de lo establecido.", severity="warning")
-        add_notification("pH bajo: 6.2 (fuera del rango óptimo 6.5-7.5).", severity="error")
-        add_notification("Conductividad crítica: 1.8 S/m (rango óptimo: 0.5-1.5 S/m).", severity="error")
-        add_notification("Nutrientes bajos - agregar solución nutritiva.", severity="info")
-        add_notification("Fluctuación inusual en la temperatura nocturna.", severity="warning")
-        add_notification("Nivel de agua bajo - rellene el tanque.", severity="error")
+        def update_alerts():
+            nuevas = AlertasModel().obtener_alertas(get_planta_id())
+            # Actualizar o crear widgets existentes
+            for idx, alerta in enumerate(nuevas):
+                texto = alerta[3]
+                if texto in self.errors:
+                    sev = "error"
+                elif texto in self.warnings:
+                    sev = "warning"
+                else:
+                    sev = "info"
+                if idx < len(self.notification_widgets):
+                    frame, icon_label, content_label = self.notification_widgets[idx]
+                    # Solo reposicionar grid si es la primera vez
+                    if not frame.winfo_ismapped():
+                        frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                    # Actualizar icono y texto
+                    icon_label.configure(text=icon_label.cget("text") if icon_label.cget("text") == ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")) else ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")), text_color=("#114C5F" if sev=="info" else ("#FFA500" if sev=="warning" else "#FF0000")))
+                    content_label.configure(text=texto)
+                else:
+                    # Crear nuevo widget
+                    frame, icon_label, content_label = add_notification_widget(texto, sev)
+                    frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                    self.notification_widgets.append((frame, icon_label, content_label))
+            # Destruir widgets sobrantes
+            for extra in range(len(nuevas), len(self.notification_widgets)):
+                frame, _, _ = self.notification_widgets[extra]
+                frame.grid_forget()
+            # Mantener solo los necesarios
+            self.notification_widgets = self.notification_widgets[:len(nuevas)]
+            # Programar siguiente actualización
+            self.after(5000, update_alerts)
+
+        # Iniciar actualizaciones
+        update_alerts()
 
         ###########################################
-        ### Finzaliza Recuadro superior derecho ###
+        ### Fin del recuadro de notificaciones   ###
         ###########################################
+
+        # (resto de la vista inferior permanece igual)
 
         #########################
         ### Recuadro inferior ###
@@ -158,7 +215,6 @@ class HomeView(customtkinter.CTkFrame):
         # Configure the grid for the bottom bordered box
         self.bottom_bordered_box.grid_rowconfigure(0, weight=1)
         self.bottom_bordered_box.grid_columnconfigure((0, 1, 2, 3), weight=1)
-
         ###########################
         ####  Caja Numero 1   #####
         ###########################
