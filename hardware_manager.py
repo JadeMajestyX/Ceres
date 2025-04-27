@@ -10,7 +10,7 @@ from utils.arduino import leer_arduino
 CONFIG_PATH = "utils/config.json"
 
 
-#datos de json
+# === FUNCIONES JSON DE CONFIG ===
 def get_planta_id():
     with open(CONFIG_PATH, "r") as f:
         data = json.load(f)
@@ -51,3 +51,5 @@ def main():
         ec_min = parametros[0][6]
         ec_max = parametros[0][7]
 
+if __name__ == "__main__":
+    main()
