@@ -9,8 +9,7 @@ from utils.arduino import leer_arduino
 
 CONFIG_PATH = "utils/config.json"
 
-
-# === FUNCIONES JSON DE CONFIG ===
+#datos de json
 def get_planta_id():
     with open(CONFIG_PATH, "r") as f:
         data = json.load(f)
@@ -32,17 +31,9 @@ def status(actuador_nombre: str) -> bool:
         data = json.load(f)
     return data["actuadores"][actuador_nombre]["status"]
 
-def main():
-    planta_id = get_planta_id()
 
-    # Pasar planta_id al hilo
-    hilo_arduino = threading.Thread(target=leer_arduino, args=(planta_id, get_tiempo_sensores()), daemon=True)
-    hilo_arduino.start()
-
-    while True:
-
-        # === BASE DE DATOS ===
-        parametros = parametrosModel().obtener_parametros(get_planta_id())
+#database
+parametros = parametrosModel().obtener_parametros(get_planta_id())
 
         temp_min = parametros[0][2]
         temp_max = parametros[0][3]
@@ -51,5 +42,4 @@ def main():
         ec_min = parametros[0][6]
         ec_max = parametros[0][7]
 
-if __name__ == "__main__":
-    main()
+print(temp_min)
