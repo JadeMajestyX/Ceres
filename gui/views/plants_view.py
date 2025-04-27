@@ -79,7 +79,7 @@ class PlantsView(customtkinter.CTkFrame):
     def add_new_plant(self):
         self.new_plant_window = customtkinter.CTkToplevel(self)
         self.new_plant_window.title("Nueva Planta")
-        self.new_plant_window.geometry("400x300")
+        self.new_plant_window.geometry("400x450")
         self.new_plant_window.configure(fg_color="#f2e6cf")
         
         self.new_plant_window.update_idletasks()
@@ -87,8 +87,8 @@ class PlantsView(customtkinter.CTkFrame):
         self.new_plant_window.grab_set()
         
         x = (self.new_plant_window.winfo_screenwidth() // 2) - 200
-        y = (self.new_plant_window.winfo_screenheight() // 2) - 150
-        self.new_plant_window.geometry(f"400x300+{x}+{y}")
+        y = (self.new_plant_window.winfo_screenheight() // 2) - 225
+        self.new_plant_window.geometry(f"400x450+{x}+{y}")
         
         self.name_label = customtkinter.CTkLabel(
             self.new_plant_window, 
@@ -96,7 +96,7 @@ class PlantsView(customtkinter.CTkFrame):
             font=("Arial", 18),
             text_color="#114c5f"
         )
-        self.name_label.pack(pady=(25, 10))
+        self.name_label.pack(pady=(20, 5))
         
         self.name_entry = customtkinter.CTkEntry(
             self.new_plant_window, 
@@ -104,7 +104,7 @@ class PlantsView(customtkinter.CTkFrame):
             border_color="#0799b6", 
             height=35
         )
-        self.name_entry.pack(pady=10, padx=30, fill="x")
+        self.name_entry.pack(pady=5, padx=30, fill="x")
         
         self.desc_label = customtkinter.CTkLabel(
             self.new_plant_window, 
@@ -112,16 +112,16 @@ class PlantsView(customtkinter.CTkFrame):
             font=("Arial", 18),
             text_color="#114c5f",
         )
-        self.desc_label.pack(pady=(15, 10))
+        self.desc_label.pack(pady=(20, 5))
         
-        self.desc_entry = customtkinter.CTkEntry(
+        self.desc_entry = customtkinter.CTkTextbox(
             self.new_plant_window, 
             width=320,
-            height=120, 
+            height=150, 
             font=("Arial", 20),
             border_color="#0799b6", 
         )
-        self.desc_entry.pack(pady=10, padx=30, fill="x", expand=True)
+        self.desc_entry.pack(pady=5, padx=30, fill="x", expand=True)
         
         self.confirm_button = customtkinter.CTkButton(
             self.new_plant_window, 
@@ -131,20 +131,21 @@ class PlantsView(customtkinter.CTkFrame):
             fg_color="#114c5f",
             hover_color="#0799b6"
         )
-        self.confirm_button.pack(pady=25)
+        self.confirm_button.pack(pady=20)
 
     def save_new_plant(self):
         plant_name = self.name_entry.get().strip()
-        plant_desc = self.desc_entry.get("1.0", "end").strip()
+        plant_desc = self.desc_entry.get("0.0","end").strip()
 
-        
-        if plant_name and plant_name not in self.plant_options:
-            self.plant_options.append(plant_name)
-            self.plant_selector.configure(values=self.plant_options)
+        if plant_name and plant_name not in self.plant_selector.cget("values"):
+            plant_options = list(self.plant_selector.cget("values"))
+            plant_options.append(plant_name)
+            self.plant_selector.configure(values=plant_options)
             self.plant_descriptions[plant_name] = plant_desc
             self.new_plant_window.destroy()
             self.plant_selector.set(plant_name)
             self.on_plant_selected(plant_name)
+
 
     def on_plant_selected(self, selected_plant):
         self.current_plant = selected_plant
@@ -163,7 +164,20 @@ class PlantsView(customtkinter.CTkFrame):
             )
             desc_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
 
-            for i, param in enumerate(["EC (%)", "Temperatura (°C)", "PH"]):
+
+            parameters = [
+                "EC (%)",
+                "EC mínimo (%)",
+                "EC máximo (%)",
+                "Temperatura (°C)",
+                "Temperatura mínima (°C)",
+                "Temperatura máxima (°C)",
+                "PH",
+                "PH mínimo",
+                "PH máximo"
+            ]
+
+            for i, param in enumerate(parameters):
                 label = customtkinter.CTkLabel(
                     self.parameters_frame, 
                     text=param, 
