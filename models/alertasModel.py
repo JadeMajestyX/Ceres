@@ -1,4 +1,4 @@
-from Model import Model
+from models.Model import Model
 
 class AlertasModel(Model):
     def __init__(self):
@@ -24,6 +24,18 @@ class AlertasModel(Model):
 
     def agregar_alerta(self, planta_id, mensaje, medicion_id=None):
         try:
+            # 1. Verificar si ya existe una alerta igual sin resolver
+            self.cursor.execute(
+                "SELECT id FROM alertas WHERE planta_id = %s AND mensaje = %s AND resuelta = FALSE ORDER BY id DESC LIMIT 1",
+                (planta_id, mensaje)
+            )
+            alerta_existente = self.cursor.fetchone()
+
+            if alerta_existente:
+                # Ya existe una alerta igual sin resolver, no insertamos
+                return
+            
+            # 2. Si no existe, insertar nueva alerta
             self.cursor.execute(
                 "INSERT INTO alertas (planta_id, medicion_id, mensaje) VALUES (%s, %s, %s)",
                 (planta_id, medicion_id, mensaje)

@@ -3,6 +3,9 @@
       "id": 1,
       "time": "2025-04-22"
     },
+    "sensores":{
+      "tiempo_lectura": 30
+    },
     "actuadores": {
       "bomba": {
         "pin": 17,
