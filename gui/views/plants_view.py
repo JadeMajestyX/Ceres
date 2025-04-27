@@ -166,13 +166,10 @@ class PlantsView(customtkinter.CTkFrame):
 
 
             parameters = [
-                "EC (%)",
                 "EC mínimo (%)",
                 "EC máximo (%)",
-                "Temperatura (°C)",
                 "Temperatura mínima (°C)",
                 "Temperatura máxima (°C)",
-                "PH",
                 "PH mínimo",
                 "PH máximo"
             ]
