@@ -1,12 +1,13 @@
 import json
 import time
-from controllers.BombaController import BombaController
-from controllers.PhController import PhController
+import serial
+# from controllers.BombaController import BombaController
+# from controllers.PhController import PhController
 from models.parametrosModel import parametrosModel
 
 CONFIG_PATH = "utils/config.json"
 
-#datos de json
+# === FUNCIONES JSON DE CONFIG ===
 def get_planta_id():
     with open(CONFIG_PATH, "r") as f:
         data = json.load(f)
@@ -22,8 +23,7 @@ def status(actuador_nombre: str) -> bool:
         data = json.load(f)
     return data["actuadores"][actuador_nombre]["status"]
 
-
-#database
+# === BASE DE DATOS ===
 parametros = parametrosModel().obtener_parametros(get_planta_id())
 
 temp_min = parametros[0][2]

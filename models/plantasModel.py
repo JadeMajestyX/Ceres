@@ -27,9 +27,3 @@ class PlantasModel(Model):
             return self.cursor.fetchone()
         finally:
             self.close()
-
-
-#obtener planta con id 1
-plantas_model = PlantasModel()
-plantas = plantas_model.obtener_planta(1)
-print(plantas)
