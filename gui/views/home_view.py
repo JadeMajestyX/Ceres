@@ -1,7 +1,7 @@
 import customtkinter
 from PIL import Image  # Import PIL for image handling
 from models.medicionesModel import MedicionesModel
-from utils.functions.functions import get_planta_id
+from utils.functions.functions import get_planta_id, nivel_de_agua
 from models.alertasModel import AlertasModel
 import json
 
@@ -33,6 +33,7 @@ class HomeView(customtkinter.CTkFrame):
             "No se detecto el sensor de conductividad",
             "No se detecto el sensor de nivel de agua",
             "No se detecto el sensor de flujo",
+            "No hay agua"
         ]
 
         self.warnings = [
@@ -42,8 +43,10 @@ class HomeView(customtkinter.CTkFrame):
             "El pH es alto",
             "El agua está fría",
             "El agua está caliente",
-            "La Conductividad es baja",
-            "La Conductividad es alta",
+            "La conductividad es baja",
+            "La conductividad es alta",
+            "La temperatura del agua es alta",
+            "La temperatura del agua es baja",
         ]
         self.infos = [
             "Se recomienda calibrar el sensor de pH",
@@ -247,7 +250,7 @@ class HomeView(customtkinter.CTkFrame):
         # Valor principal (ajustado a colores de imagen)
         self.value_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
-            text="0.94 S/m",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ec")) + " mS/cm",
             font=("Arial", 28, "bold"),
             text_color="#FFFFFF"  # Mismo color que el icono
         )
@@ -295,7 +298,7 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (7.2 ph) con tamaño aumentado y en negrita
         self.ph_value_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
-            text="7.2 ph",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ph")) + " ph",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo color de texto que el primero
         )
@@ -343,7 +346,7 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (27 °C) con tamaño aumentado y en negrita
         self.temp_value_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text="27 °C",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp")) + " °C",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
@@ -391,7 +394,7 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (30)
         self.water_level_value = customtkinter.CTkLabel(
             self.far_right_bordered_box,
-            text="30",
+            text=str(int(nivel_de_agua(get_planta_id()))) + " %",
             font=("Arial", 28, "bold"),  # Negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
@@ -413,3 +416,31 @@ class HomeView(customtkinter.CTkFrame):
         ##################################
         ### Finaliza Recuadro inferior ###
         ##################################
+        self.update_mediciones()
+
+    def update_mediciones(self):
+        try:
+            planta_id = get_planta_id()
+
+            # Conductividad eléctrica
+            ec = MedicionesModel().obtener_medicion(planta_id, "ec")
+            self.value_label.configure(text=f"{ec} mS/cm")
+
+            # pH
+            ph = MedicionesModel().obtener_medicion(planta_id, "ph")
+            self.ph_value_label.configure(text=f"{ph} ph")
+
+            # Temperatura
+            temp = MedicionesModel().obtener_medicion(planta_id, "temp")
+            self.temp_value_label.configure(text=f"{temp} °C")
+
+            # Nivel de agua
+            water = nivel_de_agua(get_planta_id())
+            print(water)
+            self.water_level_value.configure(text=f"{int(water)} %")
+        except Exception as e:
+            # En caso de error, opcionalmente mostrar en consola o label de error
+            print(f"Error actualizando mediciones: {e}")
+        finally:
+            # Reprograma la siguiente actualización
+            self.after(5000, self.update_mediciones)

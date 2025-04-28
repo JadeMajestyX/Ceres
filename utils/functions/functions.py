@@ -18,12 +18,22 @@ def get_agua_minimo():
 
 def nivel_de_agua(planta_id):
     try:
-        medicion = MedicionesModel().obtener_medicion(planta_id, "water")
-        if medicion > 0:
-            porcentaje = (medicion / get_agua_maximo()) * 100
-            return porcentaje
-        else:
-            return 0
-    except Exception as e:
-        return 0
-    
+        medicion   = MedicionesModel().obtener_medicion(planta_id, "water")
+        dist_vacio = get_agua_minimo()   # distancia sensor ↔ agua con tanque vacío
+        dist_lleno = get_agua_maximo()   # distancia sensor ↔ agua con tanque lleno
+
+        rango = dist_vacio - dist_lleno
+        if rango <= 0:
+            # configuración inválida: get_agua_minimo() debe ser > get_agua_maximo()
+            return 0.0
+
+        porcentaje = ((dist_vacio - medicion) / rango) * 100
+
+        # forzamos sólo el mínimo a 0, permitiendo >100
+        porcentaje = max(0.0, porcentaje)
+
+        return porcentaje
+
+    except Exception:
+        # ante cualquier error devolvemos 0 %
+        return 0.0

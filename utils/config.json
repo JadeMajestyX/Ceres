@@ -4,9 +4,9 @@
       "time": "2025-04-22"
     },
     "sensores":{
-      "tiempo_lectura": 30,
+      "tiempo_lectura": 5,
       "nivel_agua":{
-        "valor_minimo": 50,
+        "valor_minimo": 100,
         "valor_maximo": 25
       }
     },
