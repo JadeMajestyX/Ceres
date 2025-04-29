@@ -26,34 +26,48 @@ class SensoresView(customtkinter.CTkFrame):
     def add_measurement_buttons(self):
         """Añade los botones de intervalo de medición en la parte superior derecha"""
         button_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        button_frame.place(relx=1.0, rely=0.0, anchor="ne", x=-20, y=20)       
+        button_frame.place(relx=1.0, rely=0.0, anchor="ne", x=-20, y=20)
+        
+        # Botón para intervalo de 30 minutos
+        self.btn_30min = customtkinter.CTkButton(
+            button_frame,
+            fg_color="#408DA6",
+            text="30 Min",
+            width=80,
+            command=lambda: self.set_measurement_interval(0.5)
+        )
+        self.btn_30min.pack(side="left", padx=5, pady=5)
+        
         # Botón para intervalo de 12 horas
         self.btn_12h = customtkinter.CTkButton(
             button_frame,
             fg_color="#408DA6",
             text="12 Horas",
-            width=100,
+            width=80,
             command=lambda: self.set_measurement_interval(12)
         )
-        self.btn_12h.pack(side="left", padx=5, pady=5)       
+        self.btn_12h.pack(side="left", padx=5, pady=5)
+        
         # Botón para intervalo de 24 horas
         self.btn_24h = customtkinter.CTkButton(
             button_frame,
             fg_color="#408DA6",
             text="24 Horas",
-            width=100,
+            width=80,
             command=lambda: self.set_measurement_interval(24)
         )
-        self.btn_24h.pack(side="left", padx=5, pady=5)        
+        self.btn_24h.pack(side="left", padx=5, pady=5)
+        
         # Botón para intervalo de 1 semana
         self.btn_1week = customtkinter.CTkButton(
             button_frame,
             fg_color="#408DA6",
             text="1 Semana",
-            width=100,
+            width=80,
             command=lambda: self.set_measurement_interval(168)
         )
-        self.btn_1week.pack(side="left", padx=5, pady=5)        
+        self.btn_1week.pack(side="left", padx=5, pady=5)
+        
         # Establecer estilo para el botón activo
         self.active_button = None
         self.set_active_button(self.btn_24h)
@@ -61,7 +75,9 @@ class SensoresView(customtkinter.CTkFrame):
 
     def set_measurement_interval(self, hours):
         """Cambia el intervalo de medición y actualiza las gráficas"""
-        if hours == 12:
+        if hours == 0.5:
+            self.set_active_button(self.btn_30min)
+        elif hours == 12:
             self.set_active_button(self.btn_12h)
         elif hours == 24:
             self.set_active_button(self.btn_24h)
@@ -78,7 +94,8 @@ class SensoresView(customtkinter.CTkFrame):
 
     def update_all_graphs(self, hours):
         """Actualiza todas las gráficas con el nuevo intervalo"""
-        plt.close('all')  # Cerrar todas las figuras anteriores        
+        plt.close('all')  # Cerrar todas las figuras anteriores
+        
         for sensor in ["conductividad", "acidez", "temperatura", "nivel"]:
             graph_frame = getattr(self, f"{sensor}_graph_frame", None)
             if graph_frame:
@@ -86,20 +103,25 @@ class SensoresView(customtkinter.CTkFrame):
                 for widget in graph_frame.winfo_children():
                     widget.destroy()
                 if hasattr(graph_frame, '_current_canvas'):
-                    graph_frame._current_canvas.get_tk_widget().destroy()                
+                    graph_frame._current_canvas.get_tk_widget().destroy()
+                
                 # Obtener configuración del sensor
                 config = self.get_sensor_config(sensor)
                 
                 # Generar datos según el intervalo
-                if hours == 12:
+                if hours == 0.5: 
+                    points, interval = 12, 0.5  
+                elif hours == 12:
                     points, interval = 12, 1
                 elif hours == 24:
                     points, interval = 24, 1
-                else:  # 1 semana
-                    points, interval = 7, 24                
+                else:  
+                    points, interval = 7, 24
+                
                 time_labels = self.generate_time_data(points, interval)
                 min_val, max_val = config["y_range"]
-                values = [random.uniform(min_val*1.05, max_val*0.95) for _ in range(points)]               
+                values = [random.uniform(min_val*1.05, max_val*0.95) for _ in range(points)]
+                
                 # Crear nueva gráfica
                 self.create_fill_between_graph(
                     master=graph_frame,
@@ -254,76 +276,113 @@ class SensoresView(customtkinter.CTkFrame):
     def generate_time_data(self, points, interval=1):
         """Genera etiquetas de tiempo según el intervalo seleccionado"""
         now = datetime.now()
-        return [(now - timedelta(hours=i*interval)).strftime('%H:%M' if interval == 1 else '%d/%m') 
-                for i in range(points, 0, -1)]
+        if interval < 1:  # Para minutos
+            return [(now - timedelta(minutes=int(i*interval*60))).strftime('%H:%M') 
+                    for i in range(points, 0, -1)]
+        elif interval == 1:  # Horas exactas
+            return [(now - timedelta(hours=i)).strftime('%H:%M') 
+                    for i in range(points, 0, -1)]
+        else:  # Días
+            return [(now - timedelta(hours=i*interval)).strftime('%d/%m') 
+                    for i in range(points, 0, -1)]
 
     def create_fill_between_graph(self, master, times, values, line_color, fill_color, y_range, unit, reference_line):
-        """Crea gráficas sin warnings con layout optimizado"""
-        plt.close('all')       
-        # Crear figura con constrained_layout
+        """Crea gráficas con valores exactos en los picos"""
+        plt.close('all')
+        # Crear figura
         fig, ax = plt.subplots(
             figsize=(5, 3),
             dpi=80,
             facecolor='#8FC1C2',
-            constrained_layout=True  # Único sistema de layout
-        )       
+            constrained_layout=True
+        )
         # Asegurar referencia visible
-        ref_line = max(y_range[0], min(y_range[1], reference_line))        
+        ref_line = max(y_range[0], min(y_range[1], reference_line))
+        
         # Dibujar gráfica
-        ax.plot(times, values, color=line_color, linewidth=2.5)
-        ax.fill_between(times, values, y_range[0], color=fill_color, alpha=0.2)       
+        line, = ax.plot(times, values, color=line_color, linewidth=2.5)
+        ax.fill_between(times, values, y_range[0], color=fill_color, alpha=0.2)
+        # Encontrar picos locales (máximos y mínimos)
+        peaks = self.find_peaks(values)
+        # Añadir anotaciones para los picos
+        for i in peaks:
+            ax.annotate(f'{values[i]:.2f}{unit}',
+                    xy=(i, values[i]),
+                    xytext=(0, 10),
+                    textcoords='offset points',
+                    ha='center',
+                    va='bottom',
+                    fontsize=8,
+                    color='#2E4053',
+                    bbox=dict(boxstyle='round,pad=0.3',
+                                facecolor='white',
+                                edgecolor='none',
+                                alpha=0.7))
         # Aplicar estilos
-        self.style_graph(ax, fig, unit, y_range, ref_line)       
+        self.style_graph(ax, fig, unit, y_range, ref_line)
         # Integrar gráfica
         self.embed_graph(fig, master)
 
+    def find_peaks(self, values, threshold=0.1):
+        """Encuentra los picos (máximos y mínimos locales) en los datos"""
+        peaks = []
+        for i in range(1, len(values)-1):
+            # Máximo local
+            if values[i] > values[i-1] and values[i] > values[i+1]:
+                peaks.append(i)
+            # Mínimo local
+            elif values[i] < values[i-1] and values[i] < values[i+1]:
+                peaks.append(i)
+        # Si no hay suficientes picos, mostramos algunos puntos clave
+        if len(peaks) < 3:
+            peaks = []
+            step = max(1, len(values) // 3)
+            for i in range(0, len(values), step):
+                peaks.append(i)
+            peaks.append(len(values)-1)  # Asegurar el último punto
+        return peaks
+
     def style_graph(self, ax, fig, unit, y_range, reference_line):
         """Configura todos los estilos visuales de la gráfica"""
-        # 1. Configuración de colores de fondo
-        ax.set_facecolor('#8FC1C2')    # Color del área de ploteo (donde están los datos)
-        fig.set_facecolor('#8FC1C2')   # Color del fondo exterior (márgenes)       
-        # 2. Configuración del eje Y
-        ax.set_ylabel(unit, 
-                    fontsize=12, 
-                    color='#2E4053',  # Color texto eje Y
-                    labelpad=10)      # Espaciado
-        
-        ax.set_ylim(y_range)  # Rango del eje Y       
-        # 3. Configuración de ticks
+        # Configuración previa (igual que antes)
+        ax.set_facecolor('#8FC1C2')
+        fig.set_facecolor('#8FC1C2')
+        ax.set_ylabel(unit, fontsize=12, color='#2E4053', labelpad=10)
+        ax.set_ylim(y_range)
+        # Configuración de ticks
         ax.tick_params(
             axis='y',
             which='major',
             labelsize=10,
-            colors='#2E4053',  # Color de los números del eje Y
-            pad=5              # Espaciado de los ticks
+            colors='#2E4053',
+            pad=5
         )
-        # Ocultar eje X
         ax.tick_params(
             axis='x',
             which='both',
             bottom=False,
             labelbottom=False
-        )       
-        # 4. Cuadrícula
+        )
+        # Cuadrícula
         ax.grid(
             True,
             linestyle='--',
             alpha=0.3,
-            color='#FFFFFF'  # Color de las líneas de grid (blanco semitransparente)
-        )        
-        # 5. Línea de referencia
+            color='#FFFFFF'
+        )
+        # Línea de referencia
         ax.axhline(
             y=reference_line,
-            color='#F18F01',  # Color naranja para la línea de referencia
+            color='#F18F01',
             linestyle='--',
             linewidth=1.5,
             alpha=0.7
-        )       
-        # 6. Texto de referencia
+        )
+        # Texto de referencia
         ax.text(
-            0.95, 0.95,  # Posición (95% del ancho/alto)
+            0.95, 0.95,
             f'Óptimo: {reference_line}{unit}',
-            transform=ax.transAxes,  # Coordenadas relativas
+            transform=ax.transAxes,
             fontsize=10,
             color='#2E4053',
             va='top',
@@ -332,15 +391,15 @@ class SensoresView(customtkinter.CTkFrame):
                 facecolor='white',
                 alpha=0.7,
                 edgecolor='none',
-                boxstyle='round,pad=0.3'  # Bordes redondeados
+                boxstyle='round,pad=0.3'
             )
-        )       
-        # 7. Eliminar bordes del gráfico
+        )
+        # Eliminar bordes del gráfico
         for spine in ax.spines.values():
-            spine.set_visible(False)        
-        # 8. Ajuste automático de layout
+            spine.set_visible(False)
+        # Ajuste automático de layout
         fig.set_constrained_layout(True)
-
+    
     def embed_graph(self, fig, master):
         """Integra la gráfica en el frame"""
         # Limpiar frame primero
