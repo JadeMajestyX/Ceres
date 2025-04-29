@@ -2,6 +2,7 @@ import customtkinter
 import os
 from PIL import Image
 from gui.views.home_view import HomeView
+from gui.views.actuators_view import ActuatorsView
 from gui.views.plants_view import PlantsView
 from gui.views.sensores_view import SensoresView
 
@@ -70,8 +71,10 @@ class App(customtkinter.CTk):
         self.sensores_frame = SensoresView(self)
         self.sensores_frame.grid_columnconfigure(0, weight=1)
 
-        # create third frame
-        self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        # create Actuators frame
+        self.actuators_frame = ActuatorsView(self)
+        self.actuators_frame.grid_columnconfigure(0, weight=1)
+
 
         self.plants_frame = PlantsView(self) #plantas
 
@@ -96,9 +99,10 @@ class App(customtkinter.CTk):
         else:
             self.sensores_frame.grid_forget()
         if name == "frame_3":
-            self.third_frame.grid(row=0, column=1, sticky="nsew")
+            self.actuators_frame.grid(row=0, column=1, sticky="nsew")
         else:
-            self.third_frame.grid_forget()
+            self.actuators_frame.grid_forget()
+
         if name == "frame_4":
               self.plants_frame.grid(row=0, column=1, sticky="nsew")  #aquí estaba mal, se repetia el third_frame
         else:
