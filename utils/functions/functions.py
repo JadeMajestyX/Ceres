@@ -16,6 +16,11 @@ def get_agua_minimo():
         data = json.load(f)
     return data["sensores"]["nivel_agua"]["valor_minimo"]
 
+def get_email():
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["email"]
+
 def nivel_de_agua(planta_id):
     try:
         medicion   = MedicionesModel().obtener_medicion(planta_id, "water")

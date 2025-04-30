@@ -9,6 +9,8 @@ from utils.arduino import leer_arduino
 from models.alertasModel import AlertasModel
 from models.medicionesModel import MedicionesModel
 from utils.functions.functions import get_agua_maximo, get_agua_minimo, nivel_de_agua
+from utils.functions.functions import get_email
+from controllers.mailController import EmailController
 
 CONFIG_PATH = "utils/config.json"
 
@@ -53,6 +55,23 @@ def main():
         ph_max = parametros[0][5]
         ec_min = parametros[0][6]
         ec_max = parametros[0][7]
+
+        # === JSON DE CONFIG ===
+        emails = get_email()
+
+        # Asigna a variables
+        email1 = emails['email1']
+        email2 = emails['email2']
+        email3 = emails['email3']
+        
+        # if email1 != "":
+        #     EmailController().enviar_email(email1, "Alerta de la planta", "Se ha detectado un problema en la planta")
+        # if email2 != "":
+        #     EmailController().enviar_email(email2, "Alerta de la planta", "Se ha detectado un problema en la planta")
+        # if email3 != "":
+        #     EmailController().enviar_email(email3, "Alerta de la planta", "Se ha detectado un problema en la planta")
+
+
 
         #medicione
         medicion = MedicionesModel().obtener_mediciones(planta_id)
