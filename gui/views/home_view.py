@@ -104,7 +104,7 @@ class HomeView(customtkinter.CTkFrame):
         #### Recuadro superior derecho ######
         #####################################
 
-        # Caja principal de notificaciones
+        # Create a top-right bordered box for notifications
         self.notifications_box = customtkinter.CTkFrame(
             self, fg_color="#9CD2D3", corner_radius=10
         )
@@ -112,10 +112,11 @@ class HomeView(customtkinter.CTkFrame):
             row=0, column=1, padx=(10, 20), pady=(20, 10), sticky="nsew"
         )
 
+        # Configure grid weights for rescalability
         self.notifications_box.grid_rowconfigure(0, weight=1)
         self.notifications_box.grid_columnconfigure(0, weight=1)
 
-        # Marco desplazable
+        # Add a scrollable frame inside the notifications box
         self.scrollable_frame = customtkinter.CTkScrollableFrame(
             self.notifications_box,
             fg_color="#9CD2D3",
@@ -125,99 +126,83 @@ class HomeView(customtkinter.CTkFrame):
         self.scrollable_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
-        # Título
-        self.title_frame = customtkinter.CTkFrame(self.scrollable_frame, fg_color="transparent")
-        self.title_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=(5, 0))
-        self.title_frame.grid_columnconfigure(0, weight=1)
-
+        # Title label
         self.notifications_label = customtkinter.CTkLabel(
-            self.title_frame,
+            self.scrollable_frame,
             text="Notificaciones",
             text_color="#114C5F",
             font=("Arial", 16, "bold"),
-            anchor="w"
+            anchor="center"
         )
-        self.notifications_label.grid(row=0, column=0, sticky="w")
+        self.notifications_label.grid(row=0, column=0, padx=10, pady=(5, 15), sticky="ew")
 
-        # Lista de widgets de notificación
+        # Lista de widgets de notificación para evitar parpadeo
         self.notification_widgets = []  # [(frame, icon_label, content_label)]
 
-        # Muestra detalle con recomendación
-        def mostrar_info(texto, recomendacion):
-            import tkinter.messagebox as messagebox
-            mensaje = f"{texto}\n\n🛠 Recomendación:\n{recomendacion or 'Sin recomendaciones específicas.'}"
-            messagebox.showinfo("Detalle de notificación", mensaje)
-
-        # Crea y retorna el widget de notificación
-        def add_notification_widget(text, severity="info", recomendacion=""):
+        def add_notification_widget(text, severity="info"):
+            # Crea el frame y devuelve sus componentes
             frame = customtkinter.CTkFrame(
-            self.scrollable_frame,
-            fg_color="#E0F7FA",
-            corner_radius=10
+                self.scrollable_frame,
+                fg_color="#E0F7FA",
+                corner_radius=10
             )
-            frame.grid_columnconfigure((0, 1, 2), weight=1)
-
+            frame.grid_columnconfigure((0, 1), weight=1)
             icon_label = customtkinter.CTkLabel(
-            frame,
-            text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
-            font=("Arial", 16, "bold"),
-            text_color=("#114C5F" if severity == "info" else ("#FFA500" if severity == "warning" else "#FF0000"))
+                frame,
+                text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
+                font=("Arial", 16, "bold"),
+                text_color=("#114C5F" if severity == "info" else ("#FFA500" if severity == "warning" else "#FF0000"))
             )
             icon_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-
             content_label = customtkinter.CTkLabel(
-            frame,
-            text=text,
-            text_color="#114C5F",
-            font=("Arial", 14),
-            anchor="w"
+                frame,
+                text=text,
+                text_color="#114C5F",
+                font=("Arial", 14),
+                anchor="w"
             )
             content_label.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
-
-            info_button = customtkinter.CTkButton(
-            frame,
-            text="ℹ️",
-            width=30,
-            height=28,
-            fg_color="#D0EBF4",
-            hover_color="#B0D6E0",
-            text_color="#114C5F",
-            font=("Arial", 12),
-            command=lambda: mostrar_info(text, recomendacion)
-            )
-            info_button.grid(row=0, column=2, padx=10, pady=10, sticky="e")
-
             return frame, icon_label, content_label
 
-        # Carga y muestra notificaciones de ejemplo
-        def cargar_notificaciones_ejemplo():
-            ejemplos = [
-            {"mensaje": "El nivel de agua es bajo", "severidad": "warning", "recomendacion": "Revisar el suministro de agua."},
-            {"mensaje": "El pH es alto", "severidad": "error", "recomendacion": "Agregar solución para reducir el pH."},
-            {"mensaje": "Sensor de temperatura requiere calibración", "severidad": "info", "recomendacion": "Calibrar el sensor de temperatura."}
-            ]
+        def update_alerts():
+            nuevas = AlertasModel().obtener_alertas(get_planta_id())
+            # Actualizar o crear widgets existentes
+            for idx, alerta in enumerate(nuevas):
+                texto = alerta[3]
+                if texto in self.errors:
+                    sev = "error"
+                elif texto in self.warnings:
+                    sev = "warning"
+                else:
+                    sev = "info"
+                if idx < len(self.notification_widgets):
+                    frame, icon_label, content_label = self.notification_widgets[idx]
+                    # Solo reposicionar grid si es la primera vez
+                    if not frame.winfo_ismapped():
+                        frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                    # Actualizar icono y texto
+                    icon_label.configure(text=icon_label.cget("text") if icon_label.cget("text") == ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")) else ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")), text_color=("#114C5F" if sev=="info" else ("#FFA500" if sev=="warning" else "#FF0000")))
+                    content_label.configure(text=texto)
+                else:
+                    # Crear nuevo widget
+                    frame, icon_label, content_label = add_notification_widget(texto, sev)
+                    frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                    self.notification_widgets.append((frame, icon_label, content_label))
+            # Destruir widgets sobrantes
+            for extra in range(len(nuevas), len(self.notification_widgets)):
+                frame, _, _ = self.notification_widgets[extra]
+                frame.grid_forget()
+            # Mantener solo los necesarios
+            self.notification_widgets = self.notification_widgets[:len(nuevas)]
+            # Programar siguiente actualización
+            self.after(5000, update_alerts)
 
-            # Eliminar notificaciones anteriores
-            for widget in self.notification_widgets:
-                widget[0].destroy()
-            self.notification_widgets.clear()
-
-            # Crear y mostrar nuevas notificaciones
-            for idx, ejemplo in enumerate(ejemplos):
-                texto = ejemplo["mensaje"]
-                severidad = ejemplo["severidad"]
-                recomendacion = ejemplo.get("recomendacion", "")
-                frame, icon_label, content_label = add_notification_widget(texto, severidad, recomendacion)
-                frame.grid(row=idx + 1, column=0, padx=5, pady=5, sticky="ew")
-                self.notification_widgets.append((frame, icon_label, content_label))
-
-        # Cargar notificaciones de ejemplo al inicio
-        cargar_notificaciones_ejemplo()
+        # Iniciar actualizaciones
+        update_alerts()
 
         ###########################################
         ### Fin del recuadro de notificaciones   ###
         ###########################################
-
 
 
 
