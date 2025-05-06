@@ -1,10 +1,23 @@
 from models.medicionesModel import MedicionesModel
+from models.plantasModel import PlantasModel
+from models.alertasModel import AlertasModel
 import json
+import time
+import datetime
 
 def get_planta_id():
     with open("utils/config.json", "r") as f:
         data = json.load(f)
     return data["planta"]["id"]
+
+def tiempo():
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    dia = data["planta"]["time"]
+    dia_actual = datetime.datetime.now().strftime("%Y-%m-%d")
+    #retornar el tiempo en dias desde la fecha de inicio
+    return (datetime.datetime.strptime(dia_actual, "%Y-%m-%d") - datetime.datetime.strptime(dia, "%Y-%m-%d")).days
+
 
 def get_agua_maximo():
     with open("utils/config.json", "r") as f:
@@ -37,3 +50,21 @@ def nivel_de_agua(planta_id):
     except Exception:
         # ante cualquier error devolvemos 0 %
         return 0.0
+    
+
+def get_dato_planta(planta_id, dato):
+    try:
+        planta = PlantasModel().obtener_planta(planta_id)
+        if planta:
+            if dato == "nombre":
+                AlertasModel().alerta_solucionada(planta_id, "No se pudo obtener el dato de la planta")
+                return planta[1]
+            elif dato == "descripcion":
+                AlertasModel().alerta_solucionada(planta_id, "No se pudo obtener el dato de la planta")
+                return planta[2]
+            else:
+                raise ValueError("Dato no válido")
+    except Exception as e:
+        AlertasModel().agregar_alerta(planta_id, "No se pudo obtener el dato de la planta")
+        return None
+    

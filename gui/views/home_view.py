@@ -1,9 +1,9 @@
 import customtkinter
 from PIL import Image  # Import PIL for image handling
 from models.medicionesModel import MedicionesModel
-from utils.functions.functions import get_planta_id, nivel_de_agua
+from utils.functions.functions import get_planta_id, nivel_de_agua, tiempo, get_dato_planta
 from models.alertasModel import AlertasModel
-import json
+from models.plantasModel import PlantasModel
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -65,7 +65,7 @@ class HomeView(customtkinter.CTkFrame):
         # Add a label to display the plant being cultivated
         self.plant_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Cultivo: Tomates",
+            text="Cultivo: " + get_dato_planta(get_planta_id(), "nombre"),
             font=("Arial", 28, "bold"),
             text_color="#FFFFFF"
         )
@@ -78,13 +78,11 @@ class HomeView(customtkinter.CTkFrame):
         # Add a label to display the number of days the plant has been growing
         self.days_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Días de cultivo: 15",
+            text="Días de cultivo: " + str(tiempo()),
             font=("Arial", 24, "bold"),
             text_color="#114C5F"
         )
         self.days_label.pack(padx=20, pady=(10, 15))
-
-        alertas = AlertasModel().obtener_alertas(get_planta_id())
 
         # Function to update the image based on values
         def update_status_image(values):
@@ -436,7 +434,6 @@ class HomeView(customtkinter.CTkFrame):
 
             # Nivel de agua
             water = nivel_de_agua(get_planta_id())
-            print(water)
             self.water_level_value.configure(text=f"{int(water)} %")
         except Exception as e:
             # En caso de error, opcionalmente mostrar en consola o label de error

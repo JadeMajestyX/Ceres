@@ -1,4 +1,4 @@
-from Model import Model
+from models.Model import Model
 
 class PlantasModel(Model):
     def __init__(self):
