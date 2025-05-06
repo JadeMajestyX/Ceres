@@ -17,9 +17,9 @@ class ActuatorsView(customtkinter.CTkFrame):
         self.create_actuator_containers()
 
     def configure_grid(self):
-        """Configura filas y columna única con altura mínima"""
+        """Configura filas y columna única con altura adaptable"""
         for i in range(4):
-            self.grid_rowconfigure(i, weight=1, minsize=220)
+            self.grid_rowconfigure(i, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
     def create_actuator_containers(self):
@@ -39,26 +39,26 @@ class ActuatorsView(customtkinter.CTkFrame):
             self.create_actuator_box(idx, title, icon_path, desc)
 
     def create_actuator_box(self, row, title, icon_path, description):
-        """Crea una fila con columnas de ancho fijo y contenido centrado"""
+        """Crea una fila con columnas de ancho adaptable y contenido centrado"""
         box = customtkinter.CTkFrame(self, fg_color="#0089A3", corner_radius=12)
         box.grid(row=row, column=0, padx=20, pady=20, sticky="nsew")
 
-        # Definir ancho mínimo de columnas y expansión equitativa
-        col_widths = [300, 120, 500, 220, 100]
-        for i, width in enumerate(col_widths):
-            box.grid_columnconfigure(i, weight=1, minsize=width, uniform="col")
+        # Configurar columnas con peso para adaptabilidad
+        col_weights = [2, 1, 3, 1, 1]
+        for i, weight in enumerate(col_weights):
+            box.grid_columnconfigure(i, weight=weight, uniform="col")
         box.grid_rowconfigure(0, weight=1)
 
-        # Títulocentrado
+        # Título centrado
         lbl_title = customtkinter.CTkLabel(
             box,
             text=title,
             font=("Arial", 24, "bold"),
             text_color="white",
-            wraplength=col_widths[0] - 20,
+            wraplength=300,
             justify="center"
         )
-        lbl_title.grid(row=0, column=0, sticky="ns", padx=10)
+        lbl_title.grid(row=0, column=0, sticky="nsew", padx=10)
 
         # Icono centrado
         try:
@@ -69,11 +69,11 @@ class ActuatorsView(customtkinter.CTkFrame):
             print(f"Error cargando icono {icon_path}: {e}")
             img = None
         lbl_icon = customtkinter.CTkLabel(box, image=img, text="", fg_color="#0089A3")
-        lbl_icon.grid(row=0, column=1, sticky="ns", padx=10)
+        lbl_icon.grid(row=0, column=1, sticky="nsew", padx=10)
 
         # Descripción en recuadro blanco
-        desc_frame = customtkinter.CTkFrame(box, fg_color="white", corner_radius=15)  # Esquinas más redondas
-        desc_frame.grid(row=0, column=2, sticky="ns", padx=(10,20), pady=50)  # margen extra a la derecha
+        desc_frame = customtkinter.CTkFrame(box, fg_color="white", corner_radius=15)
+        desc_frame.grid(row=0, column=2, sticky="nsew", padx=(10, 20), pady=20)
         desc_frame.grid_rowconfigure(0, weight=1)
         desc_frame.grid_columnconfigure(0, weight=1)
         lbl_desc = customtkinter.CTkLabel(
@@ -81,7 +81,7 @@ class ActuatorsView(customtkinter.CTkFrame):
             text=description,
             font=("Arial", 16),
             text_color="black",
-            wraplength=col_widths[2] - 60,  # menor wrap para margen interno
+            wraplength=400,
             justify="center"
         )
         lbl_desc.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -96,7 +96,7 @@ class ActuatorsView(customtkinter.CTkFrame):
             width=120,
             height=60
         )
-        switch.grid(row=0, column=3, sticky="ns", padx=10)
+        switch.grid(row=0, column=3, sticky="nsew", padx=10)
 
         # Botón ajustes con fondo del recuadro
         gear_path = os.path.join(self.icon_dir, "settings.png")
@@ -124,15 +124,21 @@ class ActuatorsView(customtkinter.CTkFrame):
             height=80,
             command=lambda t=title: self.open_settings(t)
         )
-        btn.grid(row=0, column=4, sticky="ns", padx=10)
+        btn.grid(row=0, column=4, sticky="nsew", padx=10)
 
     def open_settings(self, title):
         """Abre modal de configuración para el actuador"""
         win = customtkinter.CTkToplevel(self)
         win.title(f"Configuración - {title}")
         win.geometry("600x400")
-        # Insertar la vista de opciones de configuración dentro del modal
+
+        # Mantener al frente y evitar que quede detrás
+        win.lift()
+        win.grab_set()
+        win.focus_force()
+
         ConfigOptions(win).pack(fill="both", expand=True)
+
 
 class ConfigOptions(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -166,7 +172,7 @@ class ConfigOptions(customtkinter.CTkFrame):
         frame_d = customtkinter.CTkFrame(self, fg_color="transparent")
         frame_d.pack(padx=20, pady=20, fill="x")
         customtkinter.CTkLabel(frame_d, text="Días:", text_color="white").pack(side="left")
-        for d in ["L","M","X","J","V","S","D"]:
+        for d in ["L", "M", "X", "J", "V", "S", "D"]:
             chk = customtkinter.CTkCheckBox(frame_d, text=d)
             chk.pack(side="left", padx=10)
 
