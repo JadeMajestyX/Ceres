@@ -1,9 +1,10 @@
 import customtkinter
 from PIL import Image  # Import PIL for image handling
+from tkinter import messagebox  # Import messagebox for displaying information dialogs
 from models.medicionesModel import MedicionesModel
-from utils.functions.functions import get_planta_id, nivel_de_agua, tiempo, get_dato_planta
+from utils.functions.functions import get_planta_id, nivel_de_agua
 from models.alertasModel import AlertasModel
-from models.plantasModel import PlantasModel
+import json
 
 class HomeView(customtkinter.CTkFrame):
     def __init__(self, parent):
@@ -58,42 +59,43 @@ class HomeView(customtkinter.CTkFrame):
         ### Recuadro superior izquierdo ###
         ###################################
         # Create a top-left bordered box with specified dimensions
-        # Create a top-left bordered box with specified dimensions
-        self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=15)
-        self.bordered_box.grid(row=0, column=0, padx=(30, 15), pady=(30, 15), sticky="nsew")
+        self.bordered_box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=20)
+        self.bordered_box.grid(row=0, column=0, padx=(40, 20), pady=(40, 20), sticky="nsew")
 
         # Add a label to display the plant being cultivated
         self.plant_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Cultivo: " + get_dato_planta(get_planta_id(), "nombre"),
-            font=("Arial", 28, "bold"),
+            text="Cultivo: Tomates",
+            font=("Arial", 32, "bold"),
             text_color="#FFFFFF"
         )
-        self.plant_label.pack(padx=20, pady=(15, 10))
+        self.plant_label.pack(padx=30, pady=(20, 15))
 
         # Add an image label to display the status
         self.status_image_label = customtkinter.CTkLabel(self.bordered_box, text="")
-        self.status_image_label.pack(padx=20, pady=(10, 10))
+        self.status_image_label.pack(padx=30, pady=(15, 15))
 
         # Add a label to display the number of days the plant has been growing
         self.days_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Días de cultivo: " + str(tiempo()),
-            font=("Arial", 24, "bold"),
+            text="Días de cultivo: 15",
+            font=("Arial", 28, "bold"),
             text_color="#114C5F"
         )
-        self.days_label.pack(padx=20, pady=(10, 15))
+        self.days_label.pack(padx=30, pady=(15, 20))
+
+        alertas = AlertasModel().obtener_alertas(get_planta_id())
 
         # Function to update the image based on values
         def update_status_image(values):
             if all(value == "good" for value in values):
-                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(140, 140))
+                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(160, 160))
                 self.status_image_label.configure(image=image)
             elif sum(1 for value in values if value == "bad") <= 2:
-                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(140, 140))
+                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(160, 160))
                 self.status_image_label.configure(image=image)
             else:
-                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(140, 140))
+                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(160, 160))
                 self.status_image_label.configure(image=image)
 
         # Replace these with actual logic to determine the status of each value
@@ -106,10 +108,10 @@ class HomeView(customtkinter.CTkFrame):
 
         # Create a top-right bordered box for notifications
         self.notifications_box = customtkinter.CTkFrame(
-            self, fg_color="#9CD2D3", corner_radius=10
+            self, fg_color="#9CD2D3", corner_radius=20
         )
         self.notifications_box.grid(
-            row=0, column=1, padx=(10, 20), pady=(20, 10), sticky="nsew"
+            row=0, column=1, padx=(20, 40), pady=(40, 20), sticky="nsew"
         )
 
         # Configure grid weights for rescalability
@@ -120,10 +122,10 @@ class HomeView(customtkinter.CTkFrame):
         self.scrollable_frame = customtkinter.CTkScrollableFrame(
             self.notifications_box,
             fg_color="#9CD2D3",
-            corner_radius=10,
-            width=350
+            corner_radius=20,
+            width=500
         )
-        self.scrollable_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.scrollable_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         # Title label
@@ -131,10 +133,10 @@ class HomeView(customtkinter.CTkFrame):
             self.scrollable_frame,
             text="Notificaciones",
             text_color="#114C5F",
-            font=("Arial", 16, "bold"),
+            font=("Arial", 24, "bold"),
             anchor="center"
         )
-        self.notifications_label.grid(row=0, column=0, padx=10, pady=(5, 15), sticky="ew")
+        self.notifications_label.grid(row=0, column=0, padx=20, pady=(10, 30), sticky="ew")
 
         # Lista de widgets de notificación para evitar parpadeo
         self.notification_widgets = []  # [(frame, icon_label, content_label)]
@@ -142,26 +144,26 @@ class HomeView(customtkinter.CTkFrame):
         def add_notification_widget(text, severity="info"):
             # Crea el frame y devuelve sus componentes
             frame = customtkinter.CTkFrame(
-                self.scrollable_frame,
-                fg_color="#E0F7FA",
-                corner_radius=10
+            self.scrollable_frame,
+            fg_color="#E0F7FA",
+            corner_radius=20
             )
             frame.grid_columnconfigure((0, 1), weight=1)
             icon_label = customtkinter.CTkLabel(
-                frame,
-                text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
-                font=("Arial", 16, "bold"),
-                text_color=("#114C5F" if severity == "info" else ("#FFA500" if severity == "warning" else "#FF0000"))
+            frame,
+            text="ℹ️" if severity == "info" else ("⚠️" if severity == "warning" else "❌"),
+            font=("Arial", 24, "bold"),
+            text_color=("#114C5F" if severity == "info" else ("#FFA500" if severity == "warning" else "#FF0000"))
             )
-            icon_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+            icon_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
             content_label = customtkinter.CTkLabel(
-                frame,
-                text=text,
-                text_color="#114C5F",
-                font=("Arial", 14),
-                anchor="w"
+            frame,
+            text=text,
+            text_color="#114C5F",
+            font=("Arial", 20),
+            anchor="w"
             )
-            content_label.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+            content_label.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
             return frame, icon_label, content_label
 
         def update_alerts():
@@ -179,14 +181,14 @@ class HomeView(customtkinter.CTkFrame):
                     frame, icon_label, content_label = self.notification_widgets[idx]
                     # Solo reposicionar grid si es la primera vez
                     if not frame.winfo_ismapped():
-                        frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                        frame.grid(row=idx+1, column=0, padx=10, pady=10, sticky="ew")
                     # Actualizar icono y texto
                     icon_label.configure(text=icon_label.cget("text") if icon_label.cget("text") == ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")) else ("ℹ️" if sev=="info" else ("⚠️" if sev=="warning" else "❌")), text_color=("#114C5F" if sev=="info" else ("#FFA500" if sev=="warning" else "#FF0000")))
                     content_label.configure(text=texto)
                 else:
                     # Crear nuevo widget
                     frame, icon_label, content_label = add_notification_widget(texto, sev)
-                    frame.grid(row=idx+1, column=0, padx=5, pady=5, sticky="ew")
+                    frame.grid(row=idx+1, column=0, padx=10, pady=10, sticky="ew")
                     self.notification_widgets.append((frame, icon_label, content_label))
             # Destruir widgets sobrantes
             for extra in range(len(nuevas), len(self.notification_widgets)):
@@ -266,6 +268,37 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.title_label.grid(row=2, column=0, pady=(5, 10))
 
+        # Botón de información redondo y pequeño en la esquina superior derecha
+        def show_ec_info():
+            messagebox.showinfo(
+            title="Información de Conductividad Eléctrica",
+            message=(
+                "La conductividad eléctrica mide la capacidad del agua para conducir electricidad, "
+                "lo cual está relacionado con la cantidad de sales disueltas.\n\n"
+                "Rangos:\n"
+                "- Crítico: Menor a 0.2 mS/cm o mayor a 3.0 mS/cm.\n"
+                "- Estable: Entre 0.2 mS/cm y 0.5 mS/cm o entre 2.5 mS/cm y 3.0 mS/cm.\n"
+                "- Óptimo: Entre 0.5 mS/cm y 2.5 mS/cm.\n\n"
+                "La conductividad adecuada es esencial para el crecimiento saludable de las plantas."
+            )
+            )
+
+        self.ec_info_button = customtkinter.CTkButton(
+            self.inner_bordered_box,
+            text="i",
+            command=show_ec_info,
+            fg_color="#4A90E2",  # Color azul claro para destacar
+            hover_color="#357ABD",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.ec_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
+
         ################################
         ### Finzaliza Caja Numero 1 ####
         ################################
@@ -314,6 +347,36 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.ph_title_label.grid(row=2, column=0, pady=(5, 10))
 
+        # Botón de información redondo y pequeño en la esquina superior derecha
+        def show_ph_info():
+            messagebox.showinfo(
+            title="Información del pH",
+            message=(
+            "El pH mide la acidez o alcalinidad del agua.\n\n"
+            "Rangos:\n"
+            "- Crítico: Muy ácido (pH menor a 4) o muy alcalino (pH mayor a 10).\n"
+            "- Estable: Moderadamente ácido (pH entre 4 y 6) o moderadamente alcalino (pH entre 8 y 10).\n"
+            "- Óptimo: Neutral o ligeramente ácido/alcalino (pH entre 6 y 8).\n\n"
+            "El pH mínimo es 0 y el máximo es 14."
+            )
+            )
+
+        self.ph_info_button = customtkinter.CTkButton(
+            self.additional_bordered_box,
+            text="i",
+            command=show_ph_info,
+            fg_color="#4A90E2",  # Color azul claro para destacar
+            hover_color="#357ABD",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.ph_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
+
         #######################################
         ###### Finzaliza Caja Numero 2 ########
         #######################################
@@ -332,7 +395,7 @@ class HomeView(customtkinter.CTkFrame):
         self.center_bordered_box.grid(row=0, column=2, padx=(10, 10), pady=20, sticky="nsew")
 
         # Configurar el sistema de pesos para centrar el contenido
-        self.center_bordered_box.grid_rowconfigure((0, 1, 2), weight=1)
+        self.center_bordered_box.grid_rowconfigure((0, 1, 2, 3), weight=1)
         self.center_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono para la caja central (en vertical) usando una imagen
@@ -347,7 +410,7 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para el valor (27 °C) con tamaño aumentado y en negrita
         self.temp_value_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp")) + " °C",
+            text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp_planta")) + " °C",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"  # Mismo esquema de colores
         )
@@ -356,11 +419,35 @@ class HomeView(customtkinter.CTkFrame):
         # Etiqueta para la descripción
         self.temp_title_label = customtkinter.CTkLabel(
             self.center_bordered_box,
-            text="Temperatura del agua",
+            text="Temperatura de la planta",
             font=("Arial", 14, "bold"),  # Tamaño más grande y en negrita
             text_color="#FFFFFF"
         )
         self.temp_title_label.grid(row=2, column=0, pady=(5, 10))
+
+        # Botón de información redondo y pequeño en la esquina superior derecha
+        def show_temp_info():
+            messagebox.showinfo(
+            title="Información de la Temperatura",
+            message="La temperatura de la planta es crucial para su desarrollo.\n"
+            "Mínimo recomendado: 18°C\nMáximo recomendado: 30°C"
+            )
+
+        self.temp_info_button = customtkinter.CTkButton(
+            self.center_bordered_box,
+            text="i",
+            command=show_temp_info,
+            fg_color="#4A90E2",  # Color azul claro para destacar
+            hover_color="#357ABD",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.temp_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
         #######################################
         ####### Finaliza Caja Numero 3 ########
@@ -380,7 +467,7 @@ class HomeView(customtkinter.CTkFrame):
         self.far_right_bordered_box.grid(row=0, column=3, padx=(10, 20), pady=20, sticky="nsew")
 
         # Configurar el sistema de pesos para centrar el contenido
-        self.far_right_bordered_box.grid_rowconfigure((0, 1, 2), weight=1)
+        self.far_right_bordered_box.grid_rowconfigure((0, 1, 2, 3), weight=1)
         self.far_right_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono para el nivel del agua (usando una imagen en lugar de texto)
@@ -410,6 +497,28 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.water_level_title.grid(row=2, column=0, pady=(5, 10))
 
+        # Botón de información redondo y pequeño en la esquina superior derecha
+        def show_water_info():
+            from tkinter import messagebox
+            messagebox.showinfo(
+            title="Información del Nivel de Agua",
+            message="El nivel de agua indica la cantidad de agua disponible en el sistema.\n"
+                "Mínimo recomendado: 20%\nMáximo recomendado: 100%"
+            )
+
+        self.info_button = customtkinter.CTkButton(
+            self.far_right_bordered_box,
+            text="i",
+            command=show_water_info,
+            fg_color="#114C5F",
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15  # Hacerlo completamente circular
+        )
+        self.info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
+
         ##########################################
         #######  Finaliza Caja Numero 4  #########
         ##########################################
@@ -437,6 +546,7 @@ class HomeView(customtkinter.CTkFrame):
 
             # Nivel de agua
             water = nivel_de_agua(get_planta_id())
+            print(water)
             self.water_level_value.configure(text=f"{int(water)} %")
         except Exception as e:
             # En caso de error, opcionalmente mostrar en consola o label de error
