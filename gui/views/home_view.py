@@ -273,13 +273,13 @@ class HomeView(customtkinter.CTkFrame):
             messagebox.showinfo(
             title="Información de Conductividad Eléctrica",
             message=(
-                "La conductividad eléctrica mide la capacidad del agua para conducir electricidad, "
-                "lo cual está relacionado con la cantidad de sales disueltas.\n\n"
-                "Rangos:\n"
-                "- Crítico: Menor a 0.2 mS/cm o mayor a 3.0 mS/cm.\n"
-                "- Estable: Entre 0.2 mS/cm y 0.5 mS/cm o entre 2.5 mS/cm y 3.0 mS/cm.\n"
-                "- Óptimo: Entre 0.5 mS/cm y 2.5 mS/cm.\n\n"
-                "La conductividad adecuada es esencial para el crecimiento saludable de las plantas."
+            "La conductividad eléctrica mide la capacidad del agua para conducir electricidad, "
+            "lo cual está relacionado con la cantidad de sales disueltas.\n\n"
+            "Rangos:\n"
+            "- Crítico: Menor a 0.2 mS/cm o mayor a 3.0 mS/cm.\n"
+            "- Estable: Entre 0.2 mS/cm y 0.5 mS/cm o entre 2.5 mS/cm y 3.0 mS/cm.\n"
+            "- Óptimo: Entre 0.5 mS/cm y 2.5 mS/cm.\n\n"
+            "La conductividad adecuada es esencial para el crecimiento saludable de las plantas."
             )
             )
 
@@ -298,6 +298,37 @@ class HomeView(customtkinter.CTkFrame):
             border_color="#FFFFFF"  # Borde blanco para contraste
         )
         self.ec_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
+
+        # Mostrar alertas relacionadas con la conductividad eléctrica
+        def show_ec_alerts():
+            alertas = AlertasModel().obtener_alertas(get_planta_id())
+            ec_alertas = [alerta[3] for alerta in alertas if "conductividad" in alerta[3].lower()]
+            if ec_alertas:
+                messagebox.showwarning(
+                    title="Alertas de Conductividad Eléctrica",
+                    message="\n".join(ec_alertas)
+                )
+            else:
+                messagebox.showinfo(
+                    title="Sin Alertas",
+                    message="No hay alertas relacionadas con la conductividad eléctrica."
+                )
+
+        self.ec_alerts_button = customtkinter.CTkButton(
+            self.inner_bordered_box,
+            text="⚠️",
+            command=show_ec_alerts,
+            fg_color="#FFA500",  # Color naranja para alertas
+            hover_color="#FF8C00",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.ec_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
         ################################
         ### Finzaliza Caja Numero 1 ####
@@ -377,6 +408,37 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.ph_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
+        # Botón para mostrar alertas relacionadas con el pH
+        def show_ph_alerts():
+            alertas = AlertasModel().obtener_alertas(get_planta_id())
+            ph_alertas = [alerta[3] for alerta in alertas if "ph" in alerta[3].lower()]
+            if ph_alertas:
+                messagebox.showwarning(
+                    title="Alertas de pH",
+                    message="\n".join(ph_alertas)
+                )
+            else:
+                messagebox.showinfo(
+                    title="Sin Alertas",
+                    message="No hay alertas relacionadas con el pH."
+                )
+
+        self.ph_alerts_button = customtkinter.CTkButton(
+            self.additional_bordered_box,
+            text="⚠️",
+            command=show_ph_alerts,
+            fg_color="#FFA500",  # Color naranja para alertas
+            hover_color="#FF8C00",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.ph_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
+
         #######################################
         ###### Finzaliza Caja Numero 2 ########
         #######################################
@@ -449,6 +511,37 @@ class HomeView(customtkinter.CTkFrame):
         )
         self.temp_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
+        # Botón para mostrar alertas relacionadas con la temperatura
+        def show_temp_alerts():
+            alertas = AlertasModel().obtener_alertas(get_planta_id())
+            temp_alertas = [alerta[3] for alerta in alertas if "temperatura" in alerta[3].lower()]
+            if temp_alertas:
+                messagebox.showwarning(
+                    title="Alertas de Temperatura",
+                    message="\n".join(temp_alertas)
+                )
+            else:
+                messagebox.showinfo(
+                    title="Sin Alertas",
+                    message="No hay alertas relacionadas con la temperatura."
+                )
+
+        self.temp_alerts_button = customtkinter.CTkButton(
+            self.center_bordered_box,
+            text="⚠️",
+            command=show_temp_alerts,
+            fg_color="#FFA500",  # Color naranja para alertas
+            hover_color="#FF8C00",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.temp_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
+
         #######################################
         ####### Finaliza Caja Numero 3 ########
         #######################################
@@ -503,21 +596,55 @@ class HomeView(customtkinter.CTkFrame):
             messagebox.showinfo(
             title="Información del Nivel de Agua",
             message="El nivel de agua indica la cantidad de agua disponible en el sistema.\n"
-                "Mínimo recomendado: 20%\nMáximo recomendado: 100%"
+            "Mínimo recomendado: 20%\nMáximo recomendado: 100%"
             )
 
         self.info_button = customtkinter.CTkButton(
             self.far_right_bordered_box,
             text="i",
             command=show_water_info,
-            fg_color="#114C5F",
+            fg_color="#4A90E2",  # Color azul claro para destacar
+            hover_color="#357ABD",  # Color más oscuro al pasar el mouse
             text_color="#FFFFFF",
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15  # Hacerlo completamente circular
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
         )
         self.info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
+
+        # Botón para mostrar alertas relacionadas con el nivel de agua
+        def show_water_alerts():
+            alertas = AlertasModel().obtener_alertas(get_planta_id())
+            water_alertas = [alerta[3] for alerta in alertas if "agua" in alerta[3].lower()]
+            if water_alertas:
+                messagebox.showwarning(
+                    title="Alertas de Nivel de Agua",
+                    message="\n".join(water_alertas)
+                )
+            else:
+                messagebox.showinfo(
+                    title="Sin Alertas",
+                    message="No hay alertas relacionadas con el nivel de agua."
+                )
+
+        self.water_alerts_button = customtkinter.CTkButton(
+            self.far_right_bordered_box,
+            text="⚠️",
+            command=show_water_alerts,
+            fg_color="#FFA500",  # Color naranja para alertas
+            hover_color="#FF8C00",  # Color más oscuro al pasar el mouse
+            text_color="#FFFFFF",
+            font=("Arial", 12, "bold"),
+            width=30,  # Tamaño pequeño
+            height=30,  # Tamaño pequeño
+            corner_radius=15,  # Hacerlo completamente circular
+            border_width=2,  # Borde visible
+            border_color="#FFFFFF"  # Borde blanco para contraste
+        )
+        self.water_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
         ##########################################
         #######  Finaliza Caja Numero 4  #########
