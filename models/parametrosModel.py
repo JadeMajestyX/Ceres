@@ -55,3 +55,25 @@ class parametrosModel(Model):
             self.connection.commit()
         finally:
             self.close()
+
+    def obtener_parametro(self, planta_id, tipo):
+        try:
+            self.cursor.execute(
+                "SELECT * FROM parametros WHERE planta_id = %s ORDER BY id DESC LIMIT 1",
+                (planta_id,)
+            )
+            parametro = self.cursor.fetchone()
+            if tipo == "tempmin":
+                return parametro[2]
+            elif tipo == "tempmax":
+                return parametro[3]
+            elif tipo == "phmin":
+                return parametro[4]
+            elif tipo == "phmax":
+                return parametro[5]
+            elif tipo == "ecmin":
+                return parametro[6]
+            elif tipo == "ecmax":
+                return parametro[7]
+        finally:
+            self.close()

@@ -37,5 +37,11 @@ class MedicionesModel(Model):
                 return medicion[4]
             elif tipo == "water":
                 return medicion[5]
+            elif tipo == "time":
+                return medicion[6]
+            elif tipo == "id":
+                return medicion[0]
+            elif tipo == "planta_id":
+                return medicion[1]
         finally:
             self.close()

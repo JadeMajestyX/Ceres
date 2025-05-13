@@ -2,7 +2,8 @@ import json
 import time
 import serial
 from controllers.BombaController import BombaController
-from controllers.PhController import PhController
+from controllers.PhController import PhController, PhlessController
+from controllers.SolucionController import SolucionController
 from models.parametrosModel import parametrosModel
 import threading
 from utils.arduino import leer_arduino
@@ -10,7 +11,7 @@ from models.alertasModel import AlertasModel
 from models.medicionesModel import MedicionesModel
 from utils.functions.functions import get_agua_maximo, get_agua_minimo, nivel_de_agua
 from utils.functions.functions import get_email
-from controllers.mailController import EmailController
+from utils.raspberry import Raspberry
 
 CONFIG_PATH = "utils/config.json"
 
@@ -27,11 +28,6 @@ def get_tiempo_sensores():
     return data["sensores"]["tiempo_lectura"]
 
 
-def get_tiempo(actuador_nombre: str) -> float:
-    with open(CONFIG_PATH, "r") as f:
-        data = json.load(f)
-    return data["actuadores"][actuador_nombre]["tiempo_activacion_segundos"]
-
 def status(actuador_nombre: str) -> bool:
     with open(CONFIG_PATH, "r") as f:
         data = json.load(f)
@@ -43,6 +39,12 @@ def main():
     # Pasar planta_id al hilo
     hilo_arduino = threading.Thread(target=leer_arduino, args=(planta_id, get_tiempo_sensores()), daemon=True)
     hilo_arduino.start()
+
+    hilo_bomba = threading.Thread(target=Raspberry().bomba_automatic, daemon=True)
+    hilo_bomba.start()
+
+    hilo_solucion = threading.Thread(target=Raspberry().solucion_automatic, daemon=True)
+    hilo_solucion.start()
 
     while True:
 
@@ -184,6 +186,8 @@ def main():
                 AlertasModel().alerta_solucionada(planta_id, "No hay agua")
                 AlertasModel().alerta_solucionada(planta_id, "El nivel de agua es bajo")
                 AlertasModel().alerta_solucionada(planta_id, "El nivel de agua es alto")
+
+
 
 if __name__ == "__main__":
     main()

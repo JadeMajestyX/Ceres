@@ -1,54 +1,53 @@
 from controllers.Controller import Controller
+from utils.functions.functions import get_tiempo_sensores, get_planta_id, get_pin
+from models.parametrosModel import parametrosModel
+from models.medicionesModel import MedicionesModel
+from models.actuadoresModel import ActuadoresModel
 import time
 import threading
+
+class SolucionController1(Controller):
+    def __init__(self, pin: int):
+        super().__init__(pin)
+
+class SolucionController2(Controller):
+    def __init__(self, pin: int):
+        super().__init__(pin)
 
 class SolucionController(Controller):
     def __init__(self, pin: int):
         super().__init__(pin)
+        # Instancia una sola vez los controladores secundarios
+        self.solucion2 = SolucionController2(get_pin("solucion", "pin2"))
+        self.solucion3 = SolucionController1(get_pin("solucion", "pin3"))
         self._running = False
-        self.thread = None
 
-    # Función automática para administrar las soluciones en base a las semanas
-    def automatic(self, semanas: int):
-        if self._running:
-            print("El modo automático ya está corriendo.")
-            return
+    def activar_con_pulso(self, controlador, tiempo):
+        controlador.alto()
+        time.sleep(tiempo)
+        controlador.bajo()
 
+    def automatic(self, time_on: int):
         self._running = True
+        while self._running:
+            try:
+                planta_id = get_planta_id()
+                id_medicion = MedicionesModel().obtener_medicion(planta_id, "id")
+                ec = MedicionesModel().obtener_medicion(planta_id, "ec")
+                ecmin = parametrosModel().obtener_parametro(planta_id, "ecmin")
+                ecmax = parametrosModel().obtener_parametro(planta_id, "ecmax")
+                wait = get_tiempo_sensores()
 
-        def run():
-            print(f"Iniciando modo automático para semana {semanas}")
+                if ec < ecmin:
+                    self.activar_con_pulso(self, time_on)
+                    ActuadoresModel().agregar_accion(id_medicion, "solucion", "activo")
+                    self.activar_con_pulso(self.solucion2, time_on)
+                    self.activar_con_pulso(self.solucion3, time_on)
 
-            # Lógica basada en las semanas del cultivo
-            if semanas <= 2:
-                self.activar_soluciones(a=10, b=5, c=5)
-            elif 3 <= semanas <= 5:
-                self.activar_soluciones(a=20, b=10, c=10)
-            else:
-                self.activar_soluciones(a=30, b=15, c=15)
+                time.sleep(wait)
+            except Exception as e:
+                print(f"Error en automatic(): {e}")
+                time.sleep(5)  # Evita bucle rápido en caso de errores
 
-            self._running = False
-
-        # Ejecutar la lógica en un hilo separado para no bloquear el hilo principal
-        self.thread = threading.Thread(target=run)
-        self.thread.start()
-
-    # Función para activar las soluciones
-    def activar_soluciones(self, a, b, c):
-        print(f"Activando soluciones: A={a}s, B={b}s, C={c}s")
-        self.activar_bomba('A', a)
-        self.activar_bomba('B', b)
-        self.activar_bomba('C', c)
-
-    # Función para encender una bomba durante X segundos
-    def activar_bomba(self, nombre, segundos):
-        print(f"Encendiendo bomba {nombre} por {segundos} segundos")
-        self.alto()  # Encender la bomba usando el método del controlador padre
-        time.sleep(segundos)
-        self.bajo()  # Apagar la bomba
-        print(f"Bomba {nombre} apagada")
-
-    # Detener el proceso automático
-    def detener(self):
+    def stop(self):
         self._running = False
-        print("Modo automático detenido.")

@@ -6,13 +6,9 @@ class BombaController(Controller):
     def __init__(self, pin: int):
         super().__init__(pin)
 
-    def automatic(self):
-        self.automatico_activo = True
-        def ciclo_automatico():
-            while self.automatico_activo:
-                self.alto()
-                time.sleep(5)
-                self.bajo()
-                time.sleep(5)
-
-        ciclo_automatico()
+    def automatic(self, time_on: int, time_off: int):
+        while True:
+            self.bajo()
+            time.sleep(time_on)
+            self.alto()
+            time.sleep(time_off)
