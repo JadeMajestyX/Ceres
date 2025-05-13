@@ -73,3 +73,26 @@ def get_dato_planta(planta_id, dato):
         AlertasModel().agregar_alerta(planta_id, "No se pudo obtener el dato de la planta")
         return None
     
+def get_tiempo_sensores():
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["sensores"]["tiempo_lectura"]
+
+def get_pin(tipo, pin):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["actuadores"][tipo][pin]
+
+def get_tiempo_encendido(tipo):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["actuadores"][tipo]["time_on"]
+def get_tiempo_apagado(tipo):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["actuadores"][tipo]["time_off"]
+
+def status(tipo):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["actuadores"][tipo]["status"]

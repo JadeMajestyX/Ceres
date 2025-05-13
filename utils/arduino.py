@@ -39,8 +39,8 @@ def leer_arduino(planta_id, tiempo_lectura):
                             MedicionesModel().agregar_medicion(
                                 planta_id,
                                 mediciones['temperature'],
-                                mediciones['ec'],
                                 mediciones['ph'],
+                                mediciones['ec'],
                                 mediciones['water_level']
                             )
                             AlertasModel().alerta_solucionada(planta_id, "Los datos del Arduino son incorrectos")
@@ -68,8 +68,8 @@ def leer_arduino(planta_id, tiempo_lectura):
                                 MedicionesModel().agregar_medicion(
                                     planta_id,
                                     mediciones['temperature'],
-                                    mediciones['ec'],
                                     mediciones['ph'],
+                                    mediciones['ec'],
                                     mediciones['water_level']
                                 )
                                 AlertasModel().alerta_solucionada(planta_id, "Los datos del Arduino son incorrectos")
