@@ -1,5 +1,8 @@
 import customtkinter
+import os
+import json
 from customtkinter import CTkComboBox
+import tkinter.messagebox as messagebox
 
 class PlantsView(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -16,6 +19,7 @@ class PlantsView(customtkinter.CTkFrame):
             text_color="white"
         )
         self.title_label.grid(row=0, column=0, pady=(20, 30), sticky="n")
+        
         
         self.selection_frame = customtkinter.CTkFrame(self, fg_color="#9cd2d3")
         self.selection_frame.grid(row=1, column=0, padx=30, pady=15, sticky="ew")
@@ -134,17 +138,76 @@ class PlantsView(customtkinter.CTkFrame):
         self.confirm_button.pack(pady=20)
 
     def save_new_plant(self):
-        plant_name = self.name_entry.get().strip()
-        plant_desc = self.desc_entry.get("0.0","end").strip()
+            plant_name = self.name_entry.get().strip()
+            plant_desc = self.desc_entry.get("0.0","end").strip()
 
-        if plant_name and plant_name not in self.plant_selector.cget("values"):
-            plant_options = list(self.plant_selector.cget("values"))
-            plant_options.append(plant_name)
-            self.plant_selector.configure(values=plant_options)
-            self.plant_descriptions[plant_name] = plant_desc
-            self.new_plant_window.destroy()
-            self.plant_selector.set(plant_name)
-            self.on_plant_selected(plant_name)
+            # Validación nombre
+            if not plant_name:
+                if not hasattr(self, "name_error_label") or not self.name_error_label.winfo_exists():
+                    self.name_error_label = customtkinter.CTkLabel(
+                        self.new_plant_window,
+                        text="*Este campo es obligatorio*",
+                        text_color="red",
+                        font=("Arial", 14)
+                    )
+                    self.name_error_label.pack(after=self.name_entry, pady=(0, 5))
+            else:
+                if hasattr(self, "name_error_label") and self.name_error_label.winfo_exists():
+                    self.name_error_label.destroy()
+
+            # Validación descripción
+            if not plant_desc:
+                if not hasattr(self, "desc_error_label") or not self.desc_error_label.winfo_exists():
+                    self.desc_error_label = customtkinter.CTkLabel(
+                        self.new_plant_window,
+                        text="*Este campo es obligatorio*",
+                        text_color="red",
+                        font=("Arial", 14)
+                    )
+                    self.desc_error_label.pack(after=self.desc_entry, pady=(0, 5))
+            else:
+                if hasattr(self, "desc_error_label") and self.desc_error_label.winfo_exists():
+                    self.desc_error_label.destroy()
+
+            if not plant_name or not plant_desc:
+                return
+
+            # Preguntar contraseña
+            password_prompt = customtkinter.CTkInputDialog(
+                title="Confirmación",
+                text="Para guardar, ingresa la contraseña:"
+            )
+            input_password = password_prompt.get_input().strip()
+
+            try:
+                with open("utils/config.json", "r") as f:
+                    config = json.load(f)
+                    stored_password = config.get("password", "")
+            except FileNotFoundError:
+                messagebox.showerror("Error", "Archivo de configuración no encontrado.")
+                return
+            print(f"Contraseña ingresada: '{input_password}'")
+            print(f"Contraseña esperada: '{stored_password}'")
+
+            if input_password != stored_password:
+                messagebox.showerror("Contraseña incorrecta", "La contraseña ingresada no es correcta.")
+                return
+
+            # Guardar planta
+            if plant_name not in self.plant_selector.cget("values"):
+                plant_options = list(self.plant_selector.cget("values"))
+                plant_options.append(plant_name)
+                self.plant_selector.configure(values=plant_options)
+
+                self.plant_descriptions[plant_name] = plant_desc
+                self.new_plant_window.destroy()
+                self.plant_selector.set(plant_name)
+                self.on_plant_selected(plant_name)
+                messagebox.showinfo("Éxito", f"Planta '{plant_name}' guardada correctamente.")
+            else:
+                messagebox.showwarning("Duplicado", "La planta ya existe.")
+
+                    
 
 
     def on_plant_selected(self, selected_plant):
@@ -154,7 +217,10 @@ class PlantsView(customtkinter.CTkFrame):
         if selected_plant:
             self.param_entries = {}
             
-            desc_text = self.plant_descriptions.get(selected_plant, "Sin descripción disponible")
+            desc_text = self.plant_descriptions.get(selected_plant, "La lechugas son plantas anuales o bienales, autógamas, de porte erecto y hasta 1 m de altura, lampiñas y con tallos ramificados."
+                                                                    "Caracteristicas: 9 pares de costillas, pico de 6-8 mm, no alados y con vilano de 2 filas de pelos blancos y simples. 2n = 18, 36."
+                                                                    "Se cultiva por sus hojas que se comen en ensalada y como verdura."
+                                                                    "Multiplica por semilla")
             desc_label = customtkinter.CTkLabel(
                 self.parameters_frame, 
                 text=f"Descripción: {desc_text}",
@@ -203,3 +269,4 @@ class PlantsView(customtkinter.CTkFrame):
         if self.current_plant:
             params = {param: entry.get() for param, entry in self.param_entries.items()}
             print(f"Parámetros guardados para {self.current_plant}: {params}")
+
