@@ -6,7 +6,7 @@ class Database:
             'host': 'localhost',
             'user': 'root',
             'port': 3306,
-            'password': '@Lollol890',
+            'password': '',
             'database': 'Ceres'
         }
 
