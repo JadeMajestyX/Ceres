@@ -83,10 +83,10 @@ def get_pin(tipo, pin):
         data = json.load(f)
     return data["actuadores"][tipo][pin]
 
-def get_tiempo_encendido(tipo):
+def get_tiempo_encendido(tipo, number=1):
     with open("utils/config.json", "r") as f:
         data = json.load(f)
-    return data["actuadores"][tipo]["time_on"]
+    return data["actuadores"][tipo][f"time_on{number}"]
 def get_tiempo_apagado(tipo):
     with open("utils/config.json", "r") as f:
         data = json.load(f)

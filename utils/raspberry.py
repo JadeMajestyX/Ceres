@@ -17,23 +17,31 @@ class Raspberry:
         status_bomb = status("bomba")
         time_off = get_tiempo_apagado("bomba")
         time_on = get_tiempo_encendido("bomba")
-        if status_bomb:
+        if status_bomb == "True":
             self.bomba.automatic(time_on, time_off)
         else:
             self.bomba.alto()
 
     def ph_automatic(self):
         status_ph= status("ph")
-        ph_time_on = get_tiempo_encendido("ph")
+        ph_time_on = get_tiempo_encendido("ph", 1)
         if status_ph:
             self.ph.automatic(ph_time_on)
         else:
             self.ph.bajo()
 
+    def phless_automatic(self):
+        status_phless = status("ph")
+        phless_time_on = get_tiempo_encendido("ph", 2)
+        if status_phless == "True":
+            self.phless.automatic(phless_time_on)
+        else:
+            self.phless.bajo()
+
     def solucion_automatic(self):
         status_solucion = status("solucion")
-        time_on = get_tiempo_encendido("solucion")
-        if status_solucion:
+        time_on = get_tiempo_encendido("solucion", 1)
+        if status_solucion == "True":
             self.solucion.automatic(time_on)
         else:
             self.solucion.bajo()

@@ -46,6 +46,12 @@ def main():
     hilo_solucion = threading.Thread(target=Raspberry().solucion_automatic, daemon=True)
     hilo_solucion.start()
 
+    hilo_ph = threading.Thread(target=Raspberry().ph_automatic, daemon=True)
+    hilo_ph.start()
+
+    hilo_phless = threading.Thread(target=Raspberry().phless_automatic, daemon=True)
+    hilo_phless.start()
+
     while True:
 
         # === BASE DE DATOS ===

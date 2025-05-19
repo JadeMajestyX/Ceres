@@ -24,7 +24,7 @@ class PhController(Controller):
                 self.alto()
                 time.sleep(wait)
             else:
-                self.bajo()
+                self.alto()
                 time.sleep(wait)
 
 class PhlessController(Controller):
@@ -36,14 +36,14 @@ class PhlessController(Controller):
             wait = get_tiempo_sensores()
 
             if ph > phmax:
-                self.alto()
+                self.bajo()
                 ActuadoresModel().agregar_accion(id, "phless", "activo")
                 time.sleep(time_on)
                 ActuadoresModel().agregar_accion(id, "phless", "inactivo")
-                self.bajo()
+                self.alto()
                 time.sleep(wait)
             else:
-                self.bajo()
+                self.alto()
                 time.sleep(wait)
 
 

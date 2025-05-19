@@ -1,16 +1,35 @@
-from controllers.mailController import mailController
-import json
-from utils.functions.functions import get_email
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import mysql.connector
 
-emails = get_email()
+app = Flask(__name__)
+CORS(app)
 
-# Asigna a variables
-email1 = emails['email1']
-email2 = emails['email2']
-email3 = emails['email3']
+# Conexi�n a la base de datos (ajusta a tu configuraci�n)
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="pi2090",
+    database="Ceres",
+)
+cursor = db.cursor(dictionary=True)
 
-alerta = "Se ha detectado un alto nivel de botsito"
-subject = "Alerta"
+@app.route('/api/plantas', methods=['GET'])
+def obtener_datos():
+    cursor.execute("SELECT * FROM plantas")
+    return jsonify(cursor.fetchall())
 
-mailController = mailController()
-mailController.send_email(email2, subject, alerta)
+@app.route('/api/parametros', methods=['GET'])
+def obtener_parametros():
+    cursor.execute("SELECT * FROM parametros")
+    return jsonify(cursor.fetchall())
+
+@app.route('/api/guardar', methods=['POST'])
+def guardar():
+    data = request.json
+    cursor.execute("INSERT INTO tu_tabla (nombre, valor) VALUES (%s, %s)", (data['nombre'], data['valor']))
+    db.commit()
+    return jsonify({'mensaje': 'Dato guardado con �xito'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

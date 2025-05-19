@@ -19,20 +19,23 @@
       "bomba": {
         "pin1": 17,
         "time_off": 5,
-        "time_on" : 5,
+        "time_on1" : 5,
         "status": "True"
       },
       "ph": {
         "pin1": 27,
         "pin2" : 22,
-        "time_on": 0.9,
+        "time_on1": 0.07,
+        "time_on2": 0.07,
         "status": "True"
       },
       "solucion":{
         "pin1": 23,
         "pin2": 24,
         "pin3": 25,
-        "time_on": 0.9,
+        "time_on1": 0.05,
+        "time_on2": 0.05,
+        "time_on3": 0.06,
         "status": "True"
       }
     },

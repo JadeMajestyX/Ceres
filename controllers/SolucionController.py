@@ -29,6 +29,7 @@ class SolucionController(Controller):
 
     def automatic(self, time_on: int):
         self._running = True
+        
         while self._running:
             try:
                 planta_id = get_planta_id()
