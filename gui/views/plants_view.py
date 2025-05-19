@@ -1,272 +1,197 @@
 import customtkinter
-import os
-import json
-from customtkinter import CTkComboBox
 import tkinter.messagebox as messagebox
+from customtkinter import CTkComboBox
+from config.security import check_password   #  NUEVO
+
+
+from plant_manager import PlantManager
+from models.plant_modal import PlantModal
+
+# -- Paleta de colores de acuerdo a nuestro pi --
+BG           = "#114c5f"
+PANEL        = "#9cd2d3"
+ACCENT       = "#0799b6"
+ACCENT_DARK  = "#4a6eb0"
+FONT_LABEL   = ("Arial", 20)
+FONT_BUTTON  = ("Arial", 18, "bold")
+
 
 class PlantsView(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        
-        self.configure(fg_color="#114c5f")  # Fondo: Sinbad
-        
+        self.configure(fg_color=BG)
+        self.manager = PlantManager()
+
+        # Título 
+        title = customtkinter.CTkLabel(
+            self, text="Gestión de Plantas",
+            font=("Arial", 42, "bold"), text_color="white")
+        title.grid(row=0, column=0, pady=(20, 30), sticky="n")
+
+        # Frame selección
+        self.selection_fr = customtkinter.CTkFrame(self, fg_color=PANEL)
+        self.selection_fr.grid(row=1, column=0, padx=30, pady=15, sticky="ew")
+        self.selection_fr.grid_columnconfigure(1, weight=1)
+
+        customtkinter.CTkLabel(
+            self.selection_fr, text="Seleccionar Planta:",
+            font=FONT_LABEL, text_color=BG
+        ).grid(row=0, column=0, padx=(15, 10), pady=15)
+
+        self.combo = CTkComboBox(
+            self.selection_fr, values=[],
+            command=self.on_select,
+            border_color=ACCENT, button_color=ACCENT,
+            dropdown_hover_color=ACCENT_DARK,
+            font=("Arial", 18), state="readonly")
+        self.combo.grid(row=0, column=1, padx=(0, 10), pady=15, sticky="ew")
+
+        # Botones
+        self._make_btn("+ Nueva Planta", self.add_modal, 2)
+        self.btn_edit   = self._make_btn("✏ Editar Planta", self.edit_modal, 3, False)
+        self.btn_delete = self._make_btn("🗑 Eliminar Planta", self.delete_plant, 4, False)
+
+        #  Parámetros 
+        self.params_fr = customtkinter.CTkScrollableFrame(
+            self, label_text="Parámetros de la Planta",
+            label_font=("Arial", 24, "bold"),
+            label_text_color="white", fg_color=PANEL)
+        self.params_fr.grid(row=2, column=0, rowspan=4,
+                            padx=30, pady=(10, 25), sticky="nsew")
+        self.params_fr.grid_columnconfigure(0, weight=1)
+
+        #  Guardar 
+        self.btn_save = customtkinter.CTkButton(
+            self, text="Guardar Cambios", state="disabled",
+            font=("Arial", 20, "bold"),
+            fg_color=ACCENT, hover_color=ACCENT_DARK,
+            command=self.save_params)
+        self.btn_save.grid(row=6, column=0, pady=(0, 30), sticky="s")
+
+        # Acomoda las filas/columnas
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6), weight=1)
-        
-        self.title_label = customtkinter.CTkLabel(
-            self, text="Gestión de Plantas", 
-            font=("Arial", 42, "bold"),
-            text_color="white"
+
+        self.current = None          # planta seleccionada
+        self.entry_refs = {}         # param -> entry widget
+
+    #Helper para botones 
+    def _make_btn(self, text, cmd, col, enabled=True):
+        btn = customtkinter.CTkButton(
+            self.selection_fr, text=text, command=cmd,
+            font=FONT_BUTTON, fg_color=BG, hover_color=ACCENT,
+            state="normal" if enabled else "disabled")
+        btn.grid(row=0, column=col, padx=5, pady=15)
+        return btn
+
+    # Modales 
+    def add_modal(self):
+        PlantModal(self, mode="new", on_save=self._add_plant)
+
+    def edit_modal(self):
+        if self.current:
+            PlantModal(
+                self, mode="edit",
+                initial_name=self.current,
+                initial_desc=self.manager.get_desc(self.current),
+                on_save=lambda n, d: self._edit_plant(n, d, self.current))
+
+    #  se hizo un CRUD interno 
+    def _add_plant(self, name, desc):
+        self.manager.add(name, desc)
+        self._refresh_combo(select=name)
+
+    def _edit_plant(self, new_name, new_desc, old_name):
+        if new_name != old_name:
+            self.manager.rename(old_name, new_name)
+        self.manager.add(new_name, new_desc)       # actualiza desc.
+        self._refresh_combo(select=new_name)
+
+
+    def delete_plant(self):
+        if not self.current:
+            return
+
+        # guardamos el nombre actual antes de eliminar
+        plant_name = self.current
+
+        # la confirmación de usuario
+        if not messagebox.askyesno(
+            "Eliminar planta",
+            f"¿Seguro que quieres eliminar '{plant_name}'?"
+        ):
+            return  
+
+        # solicita contraseña
+        if not check_password():          #security.check_password()
+            return  
+
+        self.manager.remove(plant_name)
+        self._refresh_combo(select=None)
+        self._clear_params()
+        messagebox.showinfo(
+            "Eliminado",
+            f"La planta '{plant_name}' se eliminó correctamente."
         )
-        self.title_label.grid(row=0, column=0, pady=(20, 30), sticky="n")
-        
-        
-        self.selection_frame = customtkinter.CTkFrame(self, fg_color="#9cd2d3")
-        self.selection_frame.grid(row=1, column=0, padx=30, pady=15, sticky="ew")
-        
-        self.plant_selector_label = customtkinter.CTkLabel(
-            self.selection_frame, 
-            text="Seleccionar Planta:",
-            font=("Arial", 20),
-            text_color="#114c5f"
-        )
-        self.plant_selector_label.pack(side="left", padx=(15, 10), pady=15)
-        
-        self.plant_selector = CTkComboBox(
-            self.selection_frame, 
-            values=["Lechuga"],
-            command=self.on_plant_selected,
-            border_color="#0799b6",
-            button_color="#0799b6",
-            dropdown_hover_color="#4a6eb0",
-            font=("Arial", 18),
-            state="readonly"
-        )
-        self.plant_selector.set("")
-        self.plant_selector.pack(side="left", padx=(0, 15), pady=15, fill="x", expand=True)
-        
-        self.add_plant_btn = customtkinter.CTkButton(
-            self.selection_frame, 
-            text="+ Nueva Planta", 
-            command=self.add_new_plant,
-            font=("Arial", 18, "bold"),
-            fg_color="#114c5f",
-            hover_color="#0799b6"
-        )
-        self.add_plant_btn.pack(side="right", padx=(10, 25), pady=15)
-        
-        self.parameters_frame = customtkinter.CTkScrollableFrame(
-            self, label_text="Parámetros de la Planta",
-            label_text_color="white",
-            fg_color="#9cd2d3",
-            label_font=("Arial", 24, "bold")
-        )
-        self.parameters_frame.grid(row=2, column=0, rowspan=4, padx=30, pady=(10, 25), sticky="nsew")
-        self.parameters_frame.grid_columnconfigure(0, weight=1)
-        
-        self.param_entries = {}
-        
-        self.save_btn = customtkinter.CTkButton(
-            self, 
-            text="Guardar Cambios", 
-            command=self.save_parameters, 
-            state="disabled",
-            font=("Arial", 20, "bold"),
-            fg_color="#0799b6",
-            hover_color="#4a6eb0"
-        )
-        self.save_btn.grid(row=6, column=0, pady=(0, 30), sticky="s")
-        
-        self.current_plant = None
-        self.plant_descriptions = {}
-
-    def add_new_plant(self):
-        self.new_plant_window = customtkinter.CTkToplevel(self)
-        self.new_plant_window.title("Nueva Planta")
-        self.new_plant_window.geometry("400x450")
-        self.new_plant_window.configure(fg_color="#f2e6cf")
-        
-        self.new_plant_window.update_idletasks()
-        self.new_plant_window.deiconify()
-        self.new_plant_window.grab_set()
-        
-        x = (self.new_plant_window.winfo_screenwidth() // 2) - 200
-        y = (self.new_plant_window.winfo_screenheight() // 2) - 225
-        self.new_plant_window.geometry(f"400x450+{x}+{y}")
-        
-        self.name_label = customtkinter.CTkLabel(
-            self.new_plant_window, 
-            text="Nombre de la Planta:", 
-            font=("Arial", 18),
-            text_color="#114c5f"
-        )
-        self.name_label.pack(pady=(20, 5))
-        
-        self.name_entry = customtkinter.CTkEntry(
-            self.new_plant_window, 
-            font=("Arial", 20), 
-            border_color="#0799b6", 
-            height=35
-        )
-        self.name_entry.pack(pady=5, padx=30, fill="x")
-        
-        self.desc_label = customtkinter.CTkLabel(
-            self.new_plant_window, 
-            text="Descripción:", 
-            font=("Arial", 18),
-            text_color="#114c5f",
-        )
-        self.desc_label.pack(pady=(20, 5))
-        
-        self.desc_entry = customtkinter.CTkTextbox(
-            self.new_plant_window, 
-            width=320,
-            height=150, 
-            font=("Arial", 20),
-            border_color="#0799b6", 
-        )
-        self.desc_entry.pack(pady=5, padx=30, fill="x", expand=True)
-        
-        self.confirm_button = customtkinter.CTkButton(
-            self.new_plant_window, 
-            text="Guardar", 
-            font=("Arial", 18, "bold"),
-            command=self.save_new_plant,
-            fg_color="#114c5f",
-            hover_color="#0799b6"
-        )
-        self.confirm_button.pack(pady=20)
-
-    def save_new_plant(self):
-            plant_name = self.name_entry.get().strip()
-            plant_desc = self.desc_entry.get("0.0","end").strip()
-
-            # Validación nombre
-            if not plant_name:
-                if not hasattr(self, "name_error_label") or not self.name_error_label.winfo_exists():
-                    self.name_error_label = customtkinter.CTkLabel(
-                        self.new_plant_window,
-                        text="*Este campo es obligatorio*",
-                        text_color="red",
-                        font=("Arial", 14)
-                    )
-                    self.name_error_label.pack(after=self.name_entry, pady=(0, 5))
-            else:
-                if hasattr(self, "name_error_label") and self.name_error_label.winfo_exists():
-                    self.name_error_label.destroy()
-
-            # Validación descripción
-            if not plant_desc:
-                if not hasattr(self, "desc_error_label") or not self.desc_error_label.winfo_exists():
-                    self.desc_error_label = customtkinter.CTkLabel(
-                        self.new_plant_window,
-                        text="*Este campo es obligatorio*",
-                        text_color="red",
-                        font=("Arial", 14)
-                    )
-                    self.desc_error_label.pack(after=self.desc_entry, pady=(0, 5))
-            else:
-                if hasattr(self, "desc_error_label") and self.desc_error_label.winfo_exists():
-                    self.desc_error_label.destroy()
-
-            if not plant_name or not plant_desc:
-                return
-
-            # Preguntar contraseña
-            password_prompt = customtkinter.CTkInputDialog(
-                title="Confirmación",
-                text="Para guardar, ingresa la contraseña:"
-            )
-            input_password = password_prompt.get_input().strip()
-
-            try:
-                with open("utils/config.json", "r") as f:
-                    config = json.load(f)
-                    stored_password = config.get("password", "")
-            except FileNotFoundError:
-                messagebox.showerror("Error", "Archivo de configuración no encontrado.")
-                return
-            print(f"Contraseña ingresada: '{input_password}'")
-            print(f"Contraseña esperada: '{stored_password}'")
-
-            if input_password != stored_password:
-                messagebox.showerror("Contraseña incorrecta", "La contraseña ingresada no es correcta.")
-                return
-
-            # Guardar planta
-            if plant_name not in self.plant_selector.cget("values"):
-                plant_options = list(self.plant_selector.cget("values"))
-                plant_options.append(plant_name)
-                self.plant_selector.configure(values=plant_options)
-
-                self.plant_descriptions[plant_name] = plant_desc
-                self.new_plant_window.destroy()
-                self.plant_selector.set(plant_name)
-                self.on_plant_selected(plant_name)
-                messagebox.showinfo("Éxito", f"Planta '{plant_name}' guardada correctamente.")
-            else:
-                messagebox.showwarning("Duplicado", "La planta ya existe.")
-
-                    
 
 
-    def on_plant_selected(self, selected_plant):
-        self.current_plant = selected_plant
-        self.clear_parameters_frame()
-        
-        if selected_plant:
-            self.param_entries = {}
-            
-            desc_text = self.plant_descriptions.get(selected_plant, "La lechugas son plantas anuales o bienales, autógamas, de porte erecto y hasta 1 m de altura, lampiñas y con tallos ramificados."
-                                                                    "Caracteristicas: 9 pares de costillas, pico de 6-8 mm, no alados y con vilano de 2 filas de pelos blancos y simples. 2n = 18, 36."
-                                                                    "Se cultiva por sus hojas que se comen en ensalada y como verdura."
-                                                                    "Multiplica por semilla")
-            desc_label = customtkinter.CTkLabel(
-                self.parameters_frame, 
-                text=f"Descripción: {desc_text}",
-                wraplength=500,
-                font=("Arial", 18),
+    # ComboBox
+    def _refresh_combo(self, select=None):
+        self.combo.configure(values=list(self.manager.descriptions.keys()))
+        self.combo.set(select or "")
+        self.on_select(select)
+
+    def on_select(self, name):
+        self.current = name
+        self.btn_edit.configure(state="normal" if name else "disabled")
+        self.btn_delete.configure(state="normal" if name else "disabled")
+        self.btn_save.configure(state="normal" if name else "disabled")
+        self._clear_params()
+        if not name:
+            return
+
+        # Descripción
+        desc = self.manager.get_desc(name)
+        customtkinter.CTkLabel(
+            self.params_fr, text=f"Descripción: {desc}",
+            wraplength=500, font=("Arial", 18), text_color="black"
+        ).grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+
+        # Campos
+        params = [
+            "EC mínimo (%)", "EC máximo (%)",
+            "Temperatura mínima (°C)", "Temperatura máxima (°C)",
+            "PH mínimo", "PH máximo",
+        ]
+        self.entry_refs = {}
+        for i, p in enumerate(params, start=1):
+            customtkinter.CTkLabel(
+                self.params_fr, text=p, font=("Arial", 18),
                 text_color="black"
-            )
-            desc_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+            ).grid(row=i, column=0, padx=10, pady=10, sticky="w")
+            e = customtkinter.CTkEntry(
+                self.params_fr, font=("Arial", 16),
+                border_color=ACCENT, height=35)
+            e.grid(row=i, column=1, padx=10, pady=10, sticky="ew")
+            # precargar si existían
+            e.insert(0, self.manager.get_params(name).get(p, ""))
+            self.entry_refs[p] = e
 
+    #  Guardar parámetros 
+    def save_params(self):
+        if not self.current:
+            return
+        data = {k: e.get() for k, e in self.entry_refs.items()}
+        self.manager.save_params(self.current, data)
+        messagebox.showinfo("Guardado", "Parámetros guardados correctamente.")
 
-            parameters = [
-                "EC mínimo (%)",
-                "EC máximo (%)",
-                "Temperatura mínima (°C)",
-                "Temperatura máxima (°C)",
-                "PH mínimo",
-                "PH máximo"
-            ]
+    def _clear_params(self):
+        for w in self.params_fr.winfo_children():
+            w.destroy()
 
-            for i, param in enumerate(parameters):
-                label = customtkinter.CTkLabel(
-                    self.parameters_frame, 
-                    text=param, 
-                    font=("Arial", 18),
-                    text_color="black"
-                )
-                label.grid(row=i+1, column=0, padx=10, pady=10, sticky="w")
-                entry = customtkinter.CTkEntry(
-                    self.parameters_frame, 
-                    font=("Arial", 16), 
-                    border_color="#0799b6", 
-                    height=35
-                )
-                entry.grid(row=i+1, column=1, padx=10, pady=10, sticky="ew")
-                self.param_entries[param] = entry
-
-            self.save_btn.configure(state="normal")
-        else:
-            self.save_btn.configure(state="disabled")
-
-    def clear_parameters_frame(self):
-        for widget in self.parameters_frame.winfo_children():
-            widget.destroy()
-
-    def save_parameters(self):
-        if self.current_plant:
-            params = {param: entry.get() for param, entry in self.param_entries.items()}
-            print(f"Parámetros guardados para {self.current_plant}: {params}")
-
+if __name__ == "__main__":
+    root = customtkinter.CTk()
+    root.geometry("1000x700")
+    root.title("Demo — Gestión de Plantas")
+    PlantsView(root).pack(fill="both", expand=True)
+    root.mainloop()
