@@ -34,6 +34,9 @@ class PlantasModel:
                 # Luego eliminar la planta
                 cursor.execute("DELETE FROM plantas WHERE nombre = %s", (nombre,))
                 conn.commit()
+                return nombre
+            else:
+                return None
         except Exception as e:
             print(f"Error al eliminar planta: {e}")
             conn.rollback()
