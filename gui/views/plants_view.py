@@ -85,7 +85,9 @@ class PlantsView(customtkinter.CTkFrame):
         return btn
 
     def add_modal(self):
-        PlantModal(self, mode="new", on_save=self._add_plant)
+        PlantModal(
+            self, mode="new",
+            on_save=lambda n, d, p: self._add_plant(n, d, p))
 
     def edit_modal(self):
         if self.current:
@@ -93,19 +95,22 @@ class PlantsView(customtkinter.CTkFrame):
                 self, mode="edit",
                 initial_name=self.current,
                 initial_desc=self.manager.get_desc(self.current),
-                on_save=self._edit_plant)
+                initial_params=self.manager.get_params(self.current),
+                on_save=lambda n, d, p: self._edit_plant(n, d, p))
 
-    def _add_plant(self, name, desc):
+    def _add_plant(self, name, desc, params):
         try:
-            self.manager.add(name, desc)
-            self._refresh_combo(select=name)
-            messagebox.showinfo("Éxito", "Planta agregada correctamente")
+            if self.manager.add(name, desc, params):
+                self._refresh_combo(select=name)
+                messagebox.showinfo("Éxito", "Planta agregada correctamente")
+            else:
+                messagebox.showerror("Error", "No se pudo agregar la planta")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo agregar la planta: {str(e)}")
 
-    def _edit_plant(self, new_name, new_desc):
+    def _edit_plant(self, new_name, new_desc, new_params):
         try:
-            if self.manager.rename(self.current, new_name, new_desc):
+            if self.manager.update(self.current, new_name, new_desc, new_params):
                 self.current = new_name
                 self._refresh_combo(select=new_name)
                 messagebox.showinfo("Éxito", "Planta actualizada correctamente")
@@ -128,10 +133,11 @@ class PlantsView(customtkinter.CTkFrame):
             return  
 
         try:
-            self.manager.remove(self.current)
+            plant_name = self.current
+            self.manager.remove(plant_name)
             self._refresh_combo(select=None)
             self._clear_params()
-            messagebox.showinfo("Éxito", f"La planta '{self.current}' se eliminó correctamente")
+            messagebox.showinfo("Éxito", f"La planta '{plant_name}' se eliminó correctamente")
             self.current = None
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo eliminar la planta: {str(e)}")
@@ -161,16 +167,16 @@ class PlantsView(customtkinter.CTkFrame):
         # Campos de parámetros
         params = self.manager.get_params(name)
         param_labels = [
-            ("Temperatura mínima (°C)", "Temperatura mínima (°C)"),
-            ("Temperatura máxima (°C)", "Temperatura máxima (°C)"),
-            ("PH mínimo", "PH mínimo"),
-            ("PH máximo", "PH máximo"),
-            ("EC mínimo (%)", "EC mínimo (%)"),
-            ("EC máximo (%)", "EC máximo (%)")
+            ("Temperatura mínima (°C)", "temp_min"),
+            ("Temperatura máxima (°C)", "temp_max"),
+            ("PH mínimo", "ph_min"),
+            ("PH máximo", "ph_max"),
+            ("EC mínimo (%)", "ec_min"),
+            ("EC máximo (%)", "ec_max")
         ]
 
         self.entry_refs = {}
-        for i, (key, label) in enumerate(param_labels, start=1):
+        for i, (label, key) in enumerate(param_labels, start=1):
             customtkinter.CTkLabel(
                 self.params_fr, text=label, font=("Arial", 18),
                 text_color="black"
@@ -200,4 +206,7 @@ class PlantsView(customtkinter.CTkFrame):
 
 if __name__ == "__main__":
     root = customtkinter.CTk()
-   
+    root.geometry("1000x700")
+    root.title("Demo — Gestión de Plantas")
+    PlantsView(root).pack(fill="both", expand=True)
+    root.mainloop()
