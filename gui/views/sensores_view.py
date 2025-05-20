@@ -122,6 +122,9 @@ class SensoresView(customtkinter.CTkFrame):
                 min_val, max_val = config["y_range"]
                 values = [random.uniform(min_val*1.05, max_val*0.95) for _ in range(points)]
                 
+                # Almacenar datos para la vista expandida
+                setattr(self, f"{sensor}_graph_data", (time_labels, values))
+                
                 # Crear nueva gráfica
                 self.create_fill_between_graph(
                     master=graph_frame,
@@ -231,8 +234,37 @@ class SensoresView(customtkinter.CTkFrame):
         box.grid_rowconfigure(1, weight=1)
         box.grid_rowconfigure(2, weight=0)
         box.grid_columnconfigure(0, weight=1)
+        
+        # Frame superior para icono y botón de expansión
+        top_frame = customtkinter.CTkFrame(box, fg_color="transparent")
+        top_frame.grid(row=0, column=0, sticky="nsew")
+        top_frame.grid_columnconfigure(0, weight=1)
+        top_frame.grid_columnconfigure(1, weight=0)
+        
         # Icono
-        self.create_icon(box, icon_path, sub_color)        
+        self.create_icon(top_frame, icon_path, sub_color)
+        
+        # Cargar imagen para el botón de expansión
+        expand_icon = customtkinter.CTkImage(
+            light_image=Image.open("assets/images/expandir.png"),
+            dark_image=Image.open("assets/images/expandir.png"),
+            size=(20, 20)  # Ajusta el tamaño según tu diseño
+        )
+
+        # Botón de expansión con imagen
+        expand_btn = customtkinter.CTkButton(
+            top_frame,
+            image=expand_icon,
+            text="",  # Sin texto
+            width=30,
+            height=30,
+            fg_color=sub_color,
+            hover_color="#80B0B9",
+            command=lambda t=title, lc=line_color, fc=fill_color, yr=y_range,
+                           u=unit, rl=reference_line: self.show_expanded_graph(t, lc, fc, yr, u, rl)
+        )
+        expand_btn.grid(row=0, column=1, padx=5, pady=5, sticky="ne")
+        
         # Gráfica
         graph_frame = customtkinter.CTkFrame(box, fg_color="#9CD2D3", corner_radius=5)
         graph_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")       
@@ -250,9 +282,122 @@ class SensoresView(customtkinter.CTkFrame):
             reference_line=reference_line
         )        
         # Almacenar referencia
-        setattr(self, f"{title.split()[0].lower()}_graph_frame", graph_frame)       
+        setattr(self, f"{title.split()[0].lower()}_graph_frame", graph_frame)
+        setattr(self, f"{title.split()[0].lower()}_graph_data", (time_labels, values))
+        
         # Etiqueta inferior
         self.create_bottom_label(box, title, sub_color)
+
+    def show_expanded_graph(self, title, line_color, fill_color, y_range, unit, reference_line):
+        """Muestra la gráfica en un modal expandido"""
+        # Crear ventana modal
+        modal = customtkinter.CTkToplevel(self)
+        modal.title(f"Gráfica detallada: {title}")
+        modal.geometry("1000x500")
+        modal.grab_set()  # Hace el modal modal
+        
+        # Configurar grid
+        modal.grid_rowconfigure(0, weight=1)
+        modal.grid_columnconfigure(0, weight=1)
+        
+        # Obtener datos de la gráfica
+        sensor_key = title.split()[0].lower()
+        time_labels, values = getattr(self, f"{sensor_key}_graph_data")
+        
+        # Frame para la gráfica
+        graph_frame = customtkinter.CTkFrame(modal, fg_color="#9CD2D3", corner_radius=10)
+        graph_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+        graph_frame.grid_rowconfigure(0, weight=1)
+        graph_frame.grid_columnconfigure(0, weight=1)
+        
+        # Crear gráfica expandida
+        fig, ax = plt.subplots(figsize=(10, 6), dpi=100, facecolor='#8FC1C2')
+        
+        # Dibujar gráfica
+        ax.plot(time_labels, values, color=line_color, linewidth=3)
+        ax.fill_between(time_labels, values, y_range[0], color=fill_color, alpha=0.3)
+        
+        # Añadir anotaciones para los picos
+        peaks = self.find_peaks(values)
+        for i in peaks:
+            ax.annotate(f'{values[i]:.2f}{unit}',
+                    xy=(i, values[i]),
+                    xytext=(0, 15),
+                    textcoords='offset points',
+                    ha='center',
+                    va='bottom',
+                    fontsize=12,
+                    color='#2E4053',
+                    bbox=dict(boxstyle='round,pad=0.3',
+                                facecolor='white',
+                                edgecolor='none',
+                                alpha=0.7))
+        
+        # Configurar estilos
+        self.style_expanded_graph(ax, fig, unit, y_range, reference_line)
+        
+        # Integrar gráfica en el modal
+        canvas = FigureCanvasTkAgg(fig, master=graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Botón de cerrar
+        close_btn = customtkinter.CTkButton(
+            modal,
+            text="Cerrar",
+            command=modal.destroy,
+            fg_color="#F18F01",
+            hover_color="#AB6500",
+            width=100
+        )
+        close_btn.grid(row=1, column=0, pady=(0, 20))
+
+    def style_expanded_graph(self, ax, fig, unit, y_range, reference_line):
+        """Estilo para la gráfica expandida"""
+        ax.set_facecolor('#8FC1C2')
+        fig.set_facecolor('#8FC1C2')
+        ax.set_ylabel(unit, fontsize=16, color='#2E4053', labelpad=15)
+        ax.set_ylim(y_range)
+        
+        # Configurar ticks del eje X para mostrarlos en la vista expandida
+        ax.tick_params(
+            axis='x',
+            which='both',
+            labelsize=12,
+            colors='#2E4053',
+            rotation=45
+        )
+        
+        ax.tick_params(
+            axis='y',
+            which='major',
+            labelsize=14,
+            colors='#2E4053',
+            pad=10
+        )
+        
+        # Cuadrícula
+        ax.grid(
+            True,
+            linestyle='--',
+            alpha=0.3,
+            color='#FFFFFF'
+        )
+        
+        # Línea de referencia
+        ax.axhline(
+            y=reference_line,
+            color='#F18F01',
+            linestyle='--',
+            linewidth=2,
+            alpha=0.7
+        )
+        
+        # Eliminar bordes
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        
+        fig.set_constrained_layout(True)
 
     def create_icon(self, parent, icon_path, bg_color):
         """Crea el icono del sensor"""
@@ -312,7 +457,7 @@ class SensoresView(customtkinter.CTkFrame):
                     textcoords='offset points',
                     ha='center',
                     va='bottom',
-                    fontsize=8,
+                    fontsize=12,
                     color='#2E4053',
                     bbox=dict(boxstyle='round,pad=0.3',
                                 facecolor='white',
@@ -347,13 +492,13 @@ class SensoresView(customtkinter.CTkFrame):
         # Configuración previa (igual que antes)
         ax.set_facecolor('#8FC1C2')
         fig.set_facecolor('#8FC1C2')
-        ax.set_ylabel(unit, fontsize=12, color='#2E4053', labelpad=10)
+        ax.set_ylabel(unit, fontsize=16, color='#2E4053', labelpad=10)
         ax.set_ylim(y_range)
         # Configuración de ticks
         ax.tick_params(
             axis='y',
             which='major',
-            labelsize=10,
+            labelsize=12,
             colors='#2E4053',
             pad=5
         )
@@ -378,22 +523,7 @@ class SensoresView(customtkinter.CTkFrame):
             linewidth=1.5,
             alpha=0.7
         )
-        # Texto de referencia
-        ax.text(
-            0.95, 0.95,
-            f'Óptimo: {reference_line}{unit}',
-            transform=ax.transAxes,
-            fontsize=10,
-            color='#2E4053',
-            va='top',
-            ha='right',
-            bbox=dict(
-                facecolor='white',
-                alpha=0.7,
-                edgecolor='none',
-                boxstyle='round,pad=0.3'
-            )
-        )
+        
         # Eliminar bordes del gráfico
         for spine in ax.spines.values():
             spine.set_visible(False)
@@ -424,8 +554,8 @@ class SensoresView(customtkinter.CTkFrame):
         sub_label = customtkinter.CTkLabel(
             sub_frame,
             text=text,
-            font=("Arial", 12, "bold"),
-            text_color="#2E4053",
+            font=("Arial", 16, "bold"),
+            text_color="#393939",
             anchor="center"
         )
         sub_label.grid(row=0, column=0, sticky="")

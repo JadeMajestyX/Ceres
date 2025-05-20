@@ -67,7 +67,7 @@ class HomeView(customtkinter.CTkFrame):
             self.bordered_box,
             text="Cultivo: Tomates",
             font=("Arial", 32, "bold"),
-            text_color="#FFFFFF"
+            text_color="#114C5F"
         )
         self.plant_label.pack(padx=30, pady=(20, 15))
 
@@ -80,7 +80,7 @@ class HomeView(customtkinter.CTkFrame):
             self.bordered_box,
             text="Días de cultivo: 15",
             font=("Arial", 28, "bold"),
-            text_color="#114C5F"
+            text_color="#393939"
         )
         self.days_label.pack(padx=30, pady=(15, 20))
 
@@ -228,10 +228,10 @@ class HomeView(customtkinter.CTkFrame):
         # Add a bordered box inside the bottom bordered box (left side)
         self.inner_bordered_box = customtkinter.CTkFrame(
             self.bottom_bordered_box, 
-            fg_color="#0799B6",  # Fondo blanco (como en la imagen)
+            fg_color="#A6F0FF",  # Fondo blanco (como en la imagen)
             corner_radius=10,
             border_width=1,
-            border_color="#E0E0E0"  # Borde gris claro (más discreto que en tu versión original)
+            border_color="#A6F0FF"  # Borde gris claro (más discreto que en tu versión original)
         )
         self.inner_bordered_box.grid(row=0, column=0, padx=(20, 10), pady=20, sticky="nsew")
 
@@ -242,7 +242,7 @@ class HomeView(customtkinter.CTkFrame):
         self.inner_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono (usando una imagen en lugar de texto)
-        self.icon_image = customtkinter.CTkImage(Image.open("icons/2.png"), size=(72, 72))  # Tamaño aumentado
+        self.icon_image = customtkinter.CTkImage(Image.open("assets/images/CE.png"), size=(72, 72))  # Tamaño aumentado
         self.icon_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
             image=self.icon_image,
@@ -255,7 +255,7 @@ class HomeView(customtkinter.CTkFrame):
             self.inner_bordered_box,
             text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ec")) + " mS/cm",
             font=("Arial", 28, "bold"),
-            text_color="#FFFFFF"  # Mismo color que el icono
+            text_color="#393939"  # Mismo color que el icono
         )
         self.value_label.grid(row=1, column=0, pady=(5, 5))
 
@@ -263,8 +263,8 @@ class HomeView(customtkinter.CTkFrame):
         self.title_label = customtkinter.CTkLabel(
             self.inner_bordered_box,
             text="Conductividad eléctrica",
-            font=("Arial", 14, "bold"),
-            text_color="#FFFFFF"  # Mismo color que los demás textos
+            font=("Arial", 18, "bold"),
+            text_color="#393939"  # Mismo color que los demás textos
         )
         self.title_label.grid(row=2, column=0, pady=(5, 10))
 
@@ -293,9 +293,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.ec_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
@@ -324,9 +322,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.ec_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
@@ -340,10 +336,10 @@ class HomeView(customtkinter.CTkFrame):
 
         self.additional_bordered_box = customtkinter.CTkFrame(
             self.bottom_bordered_box, 
-            fg_color="#4A6EB0",  # Color de fondo ligeramente diferente al primero
+            fg_color="#B2CDFF",  # Color de fondo ligeramente diferente al primero
             corner_radius=10,
             border_width=1,
-            border_color="#B2D8D8"  # Mismo color de borde que el primero
+            border_color="#B2CDFF"  # Mismo color de borde que el primero
         )
         self.additional_bordered_box.grid(row=0, column=1, padx=(10, 20), pady=20, sticky="nsew")
 
@@ -352,7 +348,7 @@ class HomeView(customtkinter.CTkFrame):
         self.additional_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono para la caja adicional (usando una imagen en lugar de texto)
-        self.ph_icon_image = customtkinter.CTkImage(Image.open("icons/1.png"), size=(72, 72))  # Tamaño ajustado
+        self.ph_icon_image = customtkinter.CTkImage(Image.open("assets/images/ph.png"), size=(72, 72))  # Tamaño ajustado
         self.ph_icon_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
             image=self.ph_icon_image,
@@ -365,7 +361,7 @@ class HomeView(customtkinter.CTkFrame):
             self.additional_bordered_box,
             text= str(MedicionesModel().obtener_medicion(get_planta_id(), "ph")) + " ph",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
-            text_color="#FFFFFF"  # Mismo color de texto que el primero
+            text_color="#393939"  # Mismo color de texto que el primero
         )
         self.ph_value_label.grid(row=1, column=0, pady=(5, 5))
 
@@ -373,8 +369,8 @@ class HomeView(customtkinter.CTkFrame):
         self.ph_title_label = customtkinter.CTkLabel(
             self.additional_bordered_box,
             text="Acidez o alcalinidad",
-            font=("Arial", 14, "bold"),  # Tamaño más grande y en negrita
-            text_color="#FFFFFF"
+            font=("Arial", 18, "bold"),  # Tamaño más grande y en negrita
+            text_color="#393939"
         )
         self.ph_title_label.grid(row=2, column=0, pady=(5, 10))
 
@@ -402,9 +398,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15 # Hacerlo completamente circular
         )
         self.ph_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
@@ -433,9 +427,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.ph_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
@@ -449,10 +441,10 @@ class HomeView(customtkinter.CTkFrame):
 
         self.center_bordered_box = customtkinter.CTkFrame(
             self.bottom_bordered_box,
-            fg_color="#114C5F",  # Color de fondo intermedio entre los dos anteriores
+            fg_color="#87E2FF",  # Color de fondo intermedio entre los dos anteriores
             corner_radius=10,
             border_width=1,
-            border_color="#B2D8D8"  # Mismo color de borde consistente
+            border_color="#87E2FF"  # Mismo color de borde consistente
         )
         self.center_bordered_box.grid(row=0, column=2, padx=(10, 10), pady=20, sticky="nsew")
 
@@ -461,7 +453,7 @@ class HomeView(customtkinter.CTkFrame):
         self.center_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono para la caja central (en vertical) usando una imagen
-        self.temp_icon_image = customtkinter.CTkImage(Image.open("icons/3.png"), size=(62, 78))  # Tamaño ajustado
+        self.temp_icon_image = customtkinter.CTkImage(Image.open("assets/images/Temp.png"), size=(70, 78))  # Tamaño ajustado
         self.temp_icon_label = customtkinter.CTkLabel(
             self.center_bordered_box,
             image=self.temp_icon_image,
@@ -474,7 +466,7 @@ class HomeView(customtkinter.CTkFrame):
             self.center_bordered_box,
             text= str(MedicionesModel().obtener_medicion(get_planta_id(), "temp_planta")) + " °C",
             font=("Arial", 28, "bold"),  # Tamaño más grande y en negrita
-            text_color="#FFFFFF"  # Mismo esquema de colores
+            text_color="#393939"  # Mismo esquema de colores
         )
         self.temp_value_label.grid(row=1, column=0, pady=(5, 5))
 
@@ -482,8 +474,8 @@ class HomeView(customtkinter.CTkFrame):
         self.temp_title_label = customtkinter.CTkLabel(
             self.center_bordered_box,
             text="Temperatura de la planta",
-            font=("Arial", 14, "bold"),  # Tamaño más grande y en negrita
-            text_color="#FFFFFF"
+            font=("Arial", 18, "bold"),  # Tamaño más grande y en negrita
+            text_color="#393939"
         )
         self.temp_title_label.grid(row=2, column=0, pady=(5, 10))
 
@@ -505,9 +497,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.temp_info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
@@ -536,9 +526,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.temp_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
@@ -552,10 +540,10 @@ class HomeView(customtkinter.CTkFrame):
 
         self.far_right_bordered_box = customtkinter.CTkFrame(
             self.bottom_bordered_box,
-            fg_color="#D0B98D",  # Color de fondo ligeramente más oscuro para diferenciación visual
+            fg_color="#FFF8E9",  # Color de fondo ligeramente más oscuro para diferenciación visual
             corner_radius=10,
             border_width=1,
-            border_color="#B2D8D8"  # Mantiene consistencia con los otros cuadros
+            border_color="#FFF8E9"  # Mantiene consistencia con los otros cuadros
         )
         self.far_right_bordered_box.grid(row=0, column=3, padx=(10, 20), pady=20, sticky="nsew")
 
@@ -564,7 +552,7 @@ class HomeView(customtkinter.CTkFrame):
         self.far_right_bordered_box.grid_columnconfigure(0, weight=1)
 
         # Icono para el nivel del agua (usando una imagen en lugar de texto)
-        self.water_level_icon_image = customtkinter.CTkImage(Image.open("icons/4.png"), size=(62, 72))  # Reducir ancho
+        self.water_level_icon_image = customtkinter.CTkImage(Image.open("assets/images/LW.png"), size=(68, 72))  # Reducir ancho
         self.water_level_icon = customtkinter.CTkLabel(
             self.far_right_bordered_box,
             image=self.water_level_icon_image,
@@ -577,7 +565,7 @@ class HomeView(customtkinter.CTkFrame):
             self.far_right_bordered_box,
             text=str(int(nivel_de_agua(get_planta_id()))) + " %",
             font=("Arial", 28, "bold"),  # Negrita
-            text_color="#FFFFFF"  # Mismo esquema de colores
+            text_color="#393939"  # Mismo esquema de colores
         )
         self.water_level_value.grid(row=1, column=0, pady=(5, 5))
 
@@ -585,8 +573,8 @@ class HomeView(customtkinter.CTkFrame):
         self.water_level_title = customtkinter.CTkLabel(
             self.far_right_bordered_box,
             text="Nivel del agua",
-            font=("Arial", 14, "bold"),  # Negrita
-            text_color="#FFFFFF"
+            font=("Arial", 18, "bold"),  # Negrita
+            text_color="#393939"
         )
         self.water_level_title.grid(row=2, column=0, pady=(5, 10))
 
@@ -609,9 +597,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.info_button.place(relx=0.95, rely=0.05, anchor="ne")  # Posicionarlo en la esquina superior derecha
 
@@ -640,9 +626,7 @@ class HomeView(customtkinter.CTkFrame):
             font=("Arial", 12, "bold"),
             width=30,  # Tamaño pequeño
             height=30,  # Tamaño pequeño
-            corner_radius=15,  # Hacerlo completamente circular
-            border_width=2,  # Borde visible
-            border_color="#FFFFFF"  # Borde blanco para contraste
+            corner_radius=15  # Hacerlo completamente circular
         )
         self.water_alerts_button.place(relx=0.05, rely=0.05, anchor="nw")  # Posicionarlo en la esquina superior izquierda
 
