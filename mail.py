@@ -24,6 +24,11 @@ def obtener_parametros():
     cursor.execute("SELECT * FROM parametros")
     return jsonify(cursor.fetchall())
 
+@app.route('/api/mediciones', methods=['GET'])
+def obtener_mediciones():
+    cursor.execute("SELECT * FROM mediciones")
+    return jsonify(cursor.fetchall())
+
 @app.route('/api/guardar', methods=['POST'])
 def guardar():
     data = request.json
