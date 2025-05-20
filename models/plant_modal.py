@@ -2,10 +2,9 @@ import customtkinter
 import tkinter.messagebox as messagebox
 from config.security import check_password
 
-MAX_LEN = 20        # caracteres permitidos en nombre
+MAX_LEN = 20  # caracteres permitidos en nombre
 
 class PlantModal(customtkinter.CTkToplevel):
-
     def __init__(self, master, mode="new",
                  initial_name="", initial_desc="",
                  on_save=lambda n, d: None):
@@ -22,7 +21,7 @@ class PlantModal(customtkinter.CTkToplevel):
             self, text="Nombre de la Planta:", font=lbl_font, text_color="#114c5f")
         self.name_lbl.pack(pady=(25, 5))
 
-        vcmd = (self.register(self._limit_len), "%P")   # %P = nuevo valor
+        vcmd = (self.register(self._limit_len), "%P")  # %P = nuevo valor
         self.name_entry = customtkinter.CTkEntry(
             self, font=("Arial", 22),
             border_color="#0799b6",
@@ -48,14 +47,10 @@ class PlantModal(customtkinter.CTkToplevel):
         self.name_entry.insert(0, initial_name)
         self.desc_entry.insert("0.0", initial_desc)
 
-    # -- Validación de longitud ---
     def _limit_len(self, proposed: str) -> bool:
-        """Valida en tiempo real que el nombre no exceda MAX_LEN."""
         return len(proposed) <= MAX_LEN
 
-    # Botón Guardar / Actualizar 
     def _confirm(self):
-
         # borro avisos previos si existen
         for widget in getattr(self, "_warnings", []):
             widget.destroy()
@@ -64,7 +59,7 @@ class PlantModal(customtkinter.CTkToplevel):
         name = self.name_entry.get().strip()
         desc = self.desc_entry.get("0.0", "end").strip()
 
-          # Avisos
+        # Avisos
         if not name:
             warn = customtkinter.CTkLabel(
                 self, text="*Los campos son obligatorios*",
@@ -82,14 +77,14 @@ class PlantModal(customtkinter.CTkToplevel):
         # si falta algo, no continúo
         if not name or not desc:
             return
-        # Longitud de nombre
+
         if len(name) > MAX_LEN:
             messagebox.showwarning(
                 "Nombre muy largo",
                 f"Máximo {MAX_LEN} caracteres. (Tienes {len(name)})")
             return
 
-        if not check_password(): # Contraseña
+        if not check_password():
             return
 
         self.on_save(name, desc)
