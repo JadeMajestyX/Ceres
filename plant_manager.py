@@ -21,14 +21,26 @@ class PlantManager:
 
     def update(self, old_name: str, new_name: str, new_desc: str, new_params: dict):
         try:
-            # Actualizar planta
-            if self.plants_model.actualizar_planta(old_name, new_name, new_desc):
-                # Actualizar parámetros
+            # Si el nombre no cambió, solo actualizar descripción
+            if old_name == new_name:
+                # Actualizar solo descripción si no hay parámetros
+                if not new_params:
+                    return self.plants_model.actualizar_planta(old_name, new_name, new_desc)
+                
+                # Actualizar descripción y parámetros
                 planta_id = self.plants_model.obtener_id_por_nombre(new_name)
                 if planta_id:
                     self.plants_model.guardar_parametros(planta_id, new_params)
-                return True
-            return False
+                    return self.plants_model.actualizar_planta(old_name, new_name, new_desc)
+                return False
+            else:
+                # Nombre cambió - actualizar todo
+                if self.plants_model.actualizar_planta(old_name, new_name, new_desc):
+                    planta_id = self.plants_model.obtener_id_por_nombre(new_name)
+                    if planta_id and new_params:
+                        self.plants_model.guardar_parametros(planta_id, new_params)
+                    return True
+                return False
         except Exception as e:
             print(f"Error al actualizar planta: {e}")
             return False
@@ -50,3 +62,14 @@ class PlantManager:
             'ec_min': str(planta.get('ec_min', '')),
             'ec_max': str(planta.get('ec_max', ''))
         }
+
+    def save_params(self, name: str, params: dict):
+        try:
+            planta_id = self.plants_model.obtener_id_por_nombre(name)
+            if planta_id:
+                self.plants_model.guardar_parametros(planta_id, params)
+                return True
+            return False
+        except Exception as e:
+            print(f"Error al guardar parámetros: {e}")
+            return False
