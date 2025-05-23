@@ -90,13 +90,44 @@ class PlantsView(customtkinter.CTkFrame):
             on_save=lambda n, d, p: self._add_plant(n, d, p))
 
     def edit_modal(self):
-        if self.current:
+        if not self.current:
+            return
+            
+        # Crear menú de opciones de edición
+        option_menu = customtkinter.CTkToplevel(self)
+        option_menu.title("Opciones de Edición")
+        option_menu.geometry("300x200")
+        option_menu.grab_set()
+        
+        customtkinter.CTkLabel(
+            option_menu, text="¿Qué deseas editar?",
+            font=("Arial", 18, "bold")
+        ).pack(pady=10)
+        
+        def open_edit(mode):
+            option_menu.destroy()
             PlantModal(
                 self, mode="edit",
                 initial_name=self.current,
                 initial_desc=self.manager.get_desc(self.current),
                 initial_params=self.manager.get_params(self.current),
-                on_save=lambda n, d, p: self._edit_plant(n, d, p))
+                on_save=lambda n, d, p: self._edit_plant(n, d, p),
+                edit_mode=mode)
+        
+        customtkinter.CTkButton(
+            option_menu, text="Nombre y Descripción",
+            command=lambda: open_edit("info")
+        ).pack(pady=5, fill="x", padx=20)
+        
+        customtkinter.CTkButton(
+            option_menu, text="Solo Parámetros",
+            command=lambda: open_edit("params")
+        ).pack(pady=5, fill="x", padx=20)
+        
+        customtkinter.CTkButton(
+            option_menu, text="Todo (Nombre, Desc. y Paráms)",
+            command=lambda: open_edit("all")
+        ).pack(pady=5, fill="x", padx=20)
 
     def _add_plant(self, name, desc, params):
         try:
@@ -110,12 +141,19 @@ class PlantsView(customtkinter.CTkFrame):
 
     def _edit_plant(self, new_name, new_desc, new_params):
         try:
-            if self.manager.update(self.current, new_name, new_desc, new_params):
-                self.current = new_name
-                self._refresh_combo(select=new_name)
-                messagebox.showinfo("Éxito", "Planta actualizada correctamente")
+            # Si solo se editan parámetros (new_name y new_desc son None)
+            if new_name is None and new_desc is None:
+                if self.manager.save_params(self.current, new_params):
+                    messagebox.showinfo("Éxito", "Parámetros actualizados correctamente")
+                    self._refresh_combo(select=self.current)  # Mantener selección actual
             else:
-                messagebox.showerror("Error", "No se pudo actualizar la planta")
+                # Edición normal (nombre, desc y/o parámetros)
+                if self.manager.update(self.current, new_name or self.current, 
+                                     new_desc or self.manager.get_desc(self.current), 
+                                     new_params):
+                    self.current = new_name or self.current
+                    self._refresh_combo(select=self.current)
+                    messagebox.showinfo("Éxito", "Planta actualizada correctamente")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo actualizar la planta: {str(e)}")
 
@@ -195,8 +233,8 @@ class PlantsView(customtkinter.CTkFrame):
 
         try:
             data = {k: e.get() for k, e in self.entry_refs.items()}
-            self.manager.save_params(self.current, data)
-            messagebox.showinfo("Éxito", "Parámetros guardados correctamente")
+            if self.manager.save_params(self.current, data):
+                messagebox.showinfo("Éxito", "Parámetros guardados correctamente")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudieron guardar los parámetros: {str(e)}")
 
