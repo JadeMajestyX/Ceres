@@ -1,19 +1,13 @@
 import customtkinter
-from PIL import Image, ImageTk
+from PIL import Image
 import os
-import platform
-from tkinter import messagebox
-
-def Windows11Notification(master, title, message, duration=5000):
-    """Muestra una alerta estándar usando messagebox de tkinter"""
-    messagebox.showinfo(title, message, parent=master)
 
 class ActuatorsView(customtkinter.CTkFrame):
     """
-    Vista de Actuadores con notificaciones estilo Windows 11
+    Vista de Actuadores en una sola columna, similar a SensoresView.
     """
     def __init__(self, parent):
-        super().__init__(parent, fg_color="#114C5F")  # Fondo principal azul oscuro verdoso
+        super().__init__(parent, fg_color="#114C5F")
         # Directorio de iconos
         base = os.path.dirname(os.path.abspath(__file__))
         self.icon_dir = os.path.abspath(os.path.join(base, '..', '..', 'assets', 'images'))
@@ -31,307 +25,269 @@ class ActuatorsView(customtkinter.CTkFrame):
     def create_actuator_containers(self):
         """Define datos y crea cada recuadro"""
         actuators = [
-            ("Conductividad Eléctrica", "CE.png", "#A6F0FF",  # Azul claro celeste
-             "Los actuadores activan bombas dosificadoras para ajustar la concentración de nutrientes cuando la CE está fuera del rango ideal."),
-            ("pH", "ph.png", "#B2CDFF",  # Azul lila claro
-             "Se usan bombas para añadir soluciones ácidas o básicas y mantener el pH dentro del nivel óptimo para las plantas."),
-            ("Temperatura", "Temp.png", "#87E2FF",  # Azul cielo
-             "Ventiladores o calentadores se activan automáticamente para regular la temperatura del agua o ambiente."),
-            ("Nivel de Agua", "LW.png", "#FFF8E9",  # Blanco amarillento
-             "Una bomba se activa cuando el nivel de agua baja, asegurando que siempre haya suficiente líquido para las raíces."),
+            ("Conductividad Eléctrica", "CE.png", 
+             "Los actuadores activan bombas dosificadoras para ajustar la concentración de nutrientes cuando la CE está fuera del rango ideal.", "#A6F0FF"),
+            ("pH", "ph.png", 
+             "Se usan bombas para añadir soluciones ácidas o básicas y mantener el pH dentro del nivel óptimo para las plantas.", "#B2CDFF"),
+            ("Nivel de Agua", "LW.png", 
+             "Una bomba se activa cuando el nivel de agua baja, asegurando que siempre haya suficiente líquido para las raíces.", "#FFF8E9"),
         ]
-        for idx, (title, ico, icon_color, desc) in enumerate(actuators):
+        for idx, (title, ico, desc, icon_color) in enumerate(actuators):
             icon_path = os.path.join(self.icon_dir, ico)
             self.create_actuator_box(idx, title, icon_path, desc, icon_color)
 
     def create_actuator_box(self, row, title, icon_path, description, icon_color):
         """Crea una fila con columnas de ancho adaptable y contenido centrado"""
-        # Frame principal del actuador - Verde azulado claro
-        box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=15)
-        box.grid(row=row, column=0, padx=25, pady=15, sticky="nsew")
+        # Frame principal 
+        box = customtkinter.CTkFrame(self, fg_color="#9CD2D3", corner_radius=12)
+        box.grid(row=row, column=0, padx=20, pady=20, sticky="nsew")
 
-        # Configurar columnas
-        col_weights = [4, 3, 2, 3, 2]
+        # Configuración del grid
+        col_weights = [2, 1, 3, 2, 1]
         for i, weight in enumerate(col_weights):
             box.grid_columnconfigure(i, weight=weight, uniform="col")
         box.grid_rowconfigure(0, weight=1)
-
-        # Título - Gris oscuro
+        # Título centrado
         lbl_title = customtkinter.CTkLabel(
             box,
             text=title,
-            font=("Arial", 22, "bold"),
-            text_color="#393939",  # Gris oscuro
+            font=("Arial", 24, "bold"),
+            text_color="#393939",
             wraplength=300,
             justify="center"
         )
-        lbl_title.grid(row=0, column=0, sticky="nsew", padx=20, pady=15)
+        lbl_title.grid(row=0, column=0, sticky="nsew", padx=10)
 
-        # Icono con fondo circular del color específico para cada actuador
+        # Icono centrado
         try:
             img = customtkinter.CTkImage(
-                light_image=Image.open(icon_path), size=(60, 60)
+                light_image=Image.open(icon_path), size=(80, 80)
             )
         except Exception as e:
             print(f"Error cargando icono {icon_path}: {e}")
             img = None
-        
-        # Fondo circular para el icono - color específico del actuador
-        icon_frame = customtkinter.CTkFrame(box, fg_color=icon_color, corner_radius=30, width=70, height=70)
-        icon_frame.grid(row=0, column=1, sticky="nsew", padx=10)
-        icon_frame.grid_propagate(False)
-        icon_frame.grid_rowconfigure(0, weight=1)
-        icon_frame.grid_columnconfigure(0, weight=1)
-        
-        lbl_icon = customtkinter.CTkLabel(icon_frame, image=img, text="")
-        lbl_icon.grid(row=0, column=0, sticky="nsew")
+        lbl_icon = customtkinter.CTkLabel(box, image=img, text="", fg_color=icon_color)
+        lbl_icon.grid(row=0, column=1, sticky="nsew", padx=10)
 
-        # Botón de información - Azul medio
-        info_frame = customtkinter.CTkFrame(box, fg_color="transparent")
-        info_frame.grid(row=0, column=2, sticky="nsew")
-        info_frame.grid_rowconfigure(0, weight=1)
-        info_frame.grid_columnconfigure(0, weight=1)
-        
-        info_btn = customtkinter.CTkButton(
-            info_frame,
-            text="ℹ️",
+        # Descripción en recuadro blanco
+        desc_frame = customtkinter.CTkFrame(box, fg_color="#FFFFFF", corner_radius=15)
+        desc_frame.grid(row=0, column=2, sticky="nsew", padx=(10, 10), pady=20)
+        desc_frame.grid_rowconfigure(0, weight=1)
+        desc_frame.grid_columnconfigure(0, weight=1)
+        lbl_desc = customtkinter.CTkLabel(
+            desc_frame,
+            text=description,
             font=("Arial", 16),
-            fg_color="#408DA6",  # Azul medio
-            hover_color="#2D6A8F",  # Azul más oscuro
-            width=36,
-            height=36,
-            corner_radius=18,
-            command=lambda desc=description, title=title: self.show_info_notification(title, desc)
+            text_color="#393939",
+            wraplength=400,
+            justify="center"
         )
-        info_btn.grid(row=0, column=0)
+        lbl_desc.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Switch ON/OFF - Verde para ON, rojo para OFF
-        switch_frame = customtkinter.CTkFrame(box, fg_color="transparent")
-        switch_frame.grid(row=0, column=3, sticky="nsew")
-        switch_frame.grid_rowconfigure(0, weight=1)
-        switch_frame.grid_columnconfigure(0, weight=1)
-        
-        switch = customtkinter.CTkSwitch(
-            switch_frame,
+        # Botón toggle personalizado con imágenes
+        toggle_on_path = os.path.join(self.icon_dir, "ToggleON.png")
+        toggle_off_path = os.path.join(self.icon_dir, "ToggleOFF.png")
+        try:
+            on_img_pil = Image.open(toggle_on_path).convert("RGBA")
+            off_img_pil = Image.open(toggle_off_path).convert("RGBA")
+            on_img = customtkinter.CTkImage(light_image=on_img_pil, size=(100, 60))
+            off_img = customtkinter.CTkImage(light_image=off_img_pil, size=(100, 60))
+        except Exception as e:
+            print(f"Error cargando iconos toggle: {e}")
+            on_img = off_img = None
+        switch_btn = customtkinter.CTkButton(
+            box,
+            image=off_img,
             text="",
-            progress_color="#4ADE80",  # Verde brillante para ON
-            fg_color="#FF6B6B",  # Rojo para OFF
-            button_color="white",
-            button_hover_color="#F0F0F0",
-            width=70,
-            height=32
+            fg_color="#9CD2D3",
+            hover_color="#9CD2D3",
+            width=100,
+            height=60
         )
-        switch.grid(row=0, column=0, padx=5)
+        switch_btn.grid(row=0, column=3, padx=10, pady=0)
+        switch_btn.is_on = False
+        def toggle_state(btn=switch_btn, img_on=on_img, img_off=off_img):
+            btn.is_on = not btn.is_on
+            btn.configure(image= img_on if btn.is_on else img_off)
+        switch_btn.configure(command=toggle_state)
 
-        # Botón de ajustes - Azul claro consistente
-        btn_frame = customtkinter.CTkFrame(box, fg_color="transparent")
-        btn_frame.grid(row=0, column=4, sticky="nsew")
-        btn_frame.grid_rowconfigure(0, weight=1)
-        btn_frame.grid_columnconfigure(0, weight=1)
-        
+        # Botón ajustes con fondo del recuadro
+        gear_path = os.path.join(self.icon_dir, "settings.png")
+        try:
+            pil_img = Image.open(gear_path).convert("RGBA")
+            datas = pil_img.getdata()
+            newData = []
+            for item in datas:
+                if item[0] == 0 and item[1] == 0 and item[2] == 0:
+                    newData.append((255, 255, 255, 0))
+                else:
+                    newData.append(item)
+            pil_img.putdata(newData)
+            gear_img = customtkinter.CTkImage(light_image=pil_img, size=(80, 80))
+        except Exception as e:
+            print(f"Error cargando engrane {gear_path}: {e}")
+            gear_img = None
         btn = customtkinter.CTkButton(
-            btn_frame,
-            text="⚙️",
-            font=("Arial", 16),
-            fg_color="#00A3C4",  # Azul claro
-            hover_color="#0089A3",  # Azul más oscuro
-            width=44,
-            height=44,
-            corner_radius=22,
-            command=lambda t=title, c=icon_color: self.open_settings(t, c)
+            box,
+            image=gear_img,
+            text="",
+            fg_color="#9CD2D3",
+            hover_color="#9CD2D3",
+            width=80,
+            height=80,
+            command=lambda t=title: self.open_settings(t)
         )
-        btn.grid(row=0, column=0, sticky="e", padx=8)
+        btn.grid(row=0, column=4, sticky="nsew", padx=10)
 
-    def show_info_notification(self, title, description):
-        """Muestra una notificación estilo Windows 11"""
-        Windows11Notification(self, f"Información - {title}", description)
-
-    def open_settings(self, title, icon_color):
+    def open_settings(self, title):
         """Abre modal de configuración para el actuador"""
         win = customtkinter.CTkToplevel(self)
         win.title(f"Configuración - {title}")
-        win.geometry("700x520")
-        win.resizable(True, True)  # Hacer la ventana redimensionable
-
-        # Mantener al frente
+        win.geometry("600x300")
         win.lift()
         win.grab_set()
         win.focus_force()
 
-        ConfigOptions(win, title, icon_color).pack(fill="both", expand=True)
+        ConfigOptions(win, actuator_name=title).pack(fill="both", expand=True)
+
+
 
 class ConfigOptions(customtkinter.CTkFrame):
-    """Panel de configuración para actuadores con paleta personalizada"""
-    def __init__(self, master, title, icon_color, *args, **kwargs):
-        super().__init__(master, fg_color="#0089A3", *args, **kwargs)  # Cuerpo: #0089A3
+    def __init__(self, master, actuator_name="", *args, **kwargs):
+        super().__init__(master, fg_color="#114C5F", *args, **kwargs)
         self.master = master
-        self.title = title
-        self.icon_color = icon_color
+        self.actuator_name = actuator_name
+        self.calibration_sliders = []
+        self.pack(fill="both", expand=True)
         self.setup_ui()
 
     def setup_ui(self):
-        # Header decorativo con icono y título
-        header_frame = customtkinter.CTkFrame(self, fg_color="#00A3C4", height=90, corner_radius=18)
-        header_frame.pack(fill="x", pady=(0, 18), padx=0)
-        header_frame.pack_propagate(False)
+        base = os.path.dirname(os.path.abspath(__file__))
+        self.icon_dir = os.path.abspath(os.path.join(base, '..', '..', 'assets', 'images'))
 
-        # Icono decorativo con fondo del color del actuador
-        icon_bg = customtkinter.CTkFrame(header_frame, fg_color=self.icon_color, width=60, height=60, corner_radius=30)
-        icon_bg.pack(side="left", padx=32, pady=0)
-        icon_bg.pack_propagate(False)
-        icon_label = customtkinter.CTkLabel(
-            icon_bg,
-            text="⚙️",
-            font=("Arial", 38),
-            text_color="#393939"
-        )
-        icon_label.pack(expand=True)
-
-        lbl = customtkinter.CTkLabel(
-            header_frame,
-            text=f"Configuración de {self.title}",
-            font=("Arial", 26, "bold"),
+        customtkinter.CTkLabel(
+            self,
+            text="Configuración de Actuador",
+            font=("Arial", 20, "bold"),
             text_color="white"
-        )
-        lbl.pack(side="left", padx=10, pady=0)
+        ).pack(pady=(20, 10))
 
-        # Contenedor principal
-        main_frame = customtkinter.CTkFrame(self, fg_color="#0089A3", corner_radius=18)
-        main_frame.pack(padx=36, pady=10, fill="both", expand=True)
+        if self.actuator_name.lower() != "nivel de agua":
+            # Mensaje informativo común
+            customtkinter.CTkLabel(
+                self,
+                text="Se necesita que las bombas peristálticas suministren 1ml.",
+                font=("Arial", 14),
+                text_color="white",
+                wraplength=550,
+                justify="center"
+            ).pack(pady=(0, 10))
 
-        # Sección de parámetros
-        params_frame = customtkinter.CTkFrame(main_frame, fg_color="transparent")
-        params_frame.pack(padx=20, pady=18, fill="x")
+        # Solo para "Nivel de Agua"
+        if self.actuator_name.lower() == "nivel de agua":
+            # Mensaje específico para Nivel de Agua
+            customtkinter.CTkLabel(
+                self,
+                text="Configura el intervalo de activación de la bomba de agua según el nivel detectado.",
+                font=("Arial", 14),
+                text_color="white",
+                wraplength=550,
+                justify="center"
+            ).pack(pady=(0, 10))
 
-        # Intervalo
-        interval_frame = customtkinter.CTkFrame(params_frame, fg_color="#114C5F", corner_radius=10)
-        interval_frame.pack(side="left", padx=10, pady=0, fill="y", expand=True)
-        customtkinter.CTkLabel(
-            interval_frame, 
-            text="Intervalo",
-            text_color="#A6F0FF",
-            font=("Arial", 17, "bold")
-        ).pack(anchor="w", padx=14, pady=(10, 0))
-        self.interval = customtkinter.CTkOptionMenu(
-            interval_frame,
-            values=["10 minutos", "30 minutos", "1 hora", "2 horas", "Siempre"],
-            fg_color="#408DA6",
-            button_color="#408DA6",
-            dropdown_fg_color="#0089A3",
-            width=170,
-            height=38,
-            font=("Arial", 15),
-            dropdown_font=("Arial", 15)
-        )
-        self.interval.set("30 minutos")
-        self.interval.pack(padx=14, pady=(6, 14), fill="x")
-
-        # Días
-        days_frame = customtkinter.CTkFrame(params_frame, fg_color="#114C5F", corner_radius=10)
-        days_frame.pack(side="left", padx=10, pady=0, fill="y", expand=True)
-        customtkinter.CTkLabel(
-            days_frame, 
-            text="Días",
-            text_color="#A6F0FF",
-            font=("Arial", 17, "bold")
-        ).pack(anchor="w", padx=14, pady=(10, 0))
-
-        days_inner = customtkinter.CTkFrame(days_frame, fg_color="transparent")
-        days_inner.pack(padx=10, pady=(6, 14), fill="x")
-        for i, d in enumerate(["L", "M", "X", "J", "V", "S", "D"]):
-            chk = customtkinter.CTkCheckBox(
-                days_inner, 
-                text=d,
-                width=30,
-                height=30,
-                checkbox_width=24,
-                checkbox_height=24,
-                corner_radius=5,
-                border_width=2,
-                fg_color="#4ADE80",
-                hover_color="#3BC070",
-                font=("Arial", 15, "bold")
+            frame_i = customtkinter.CTkFrame(self, fg_color="transparent")
+            frame_i.pack(padx=20, pady=(20, 10), fill="x")
+            customtkinter.CTkLabel(frame_i, text="Intervalo:", text_color="white").pack(side="left")
+            self.interval = customtkinter.CTkOptionMenu(
+                frame_i,
+                values=["10 minutos", "30 minutos", "Siempre"],
+                fg_color="#408DA6",
+                button_color="#408DA6",
+                dropdown_fg_color="#0089A3",
+                width=150
             )
-            if i < 5:
-                chk.select()
-            chk.grid(row=0, column=i, padx=8)
-            days_inner.grid_columnconfigure(i, weight=1)
+            self.interval.pack(side="right")
 
-        # Sección avanzada (parámetros adicionales)
-        advanced_frame = customtkinter.CTkFrame(main_frame, fg_color="#114C5F", corner_radius=10)
-        advanced_frame.pack(padx=20, pady=18, fill="x")
-        customtkinter.CTkLabel(
-            advanced_frame,
-            text="Parámetros avanzados",
-            text_color="#F18F01",
-            font=("Arial", 16, "bold")
-        ).pack(anchor="w", padx=14, pady=(10, 0))
+        else:
+            self.interval = None
+            self.create_calibration_section()  # Solo si no es "Nivel de Agua"
 
-        # Ejemplo de parámetro adicional: Umbral de activación
-        threshold_frame = customtkinter.CTkFrame(advanced_frame, fg_color="transparent")
-        threshold_frame.pack(padx=10, pady=(6, 14), fill="x")
-        customtkinter.CTkLabel(
-            threshold_frame,
-            text="Umbral de activación:",
-            text_color="white",
-            font=("Arial", 15)
-        ).pack(side="left", padx=6)
-        self.threshold_entry = customtkinter.CTkEntry(
-            threshold_frame,
-            width=80,
-            font=("Arial", 15),
-            fg_color="#1B425C",
-            border_color="#A6F0FF",
-            border_width=2
-        )
-        self.threshold_entry.insert(0, "Valor")
-        self.threshold_entry.pack(side="left", padx=8)
+        # Botón Guardar
+        save_path = os.path.join(self.icon_dir, "SaveIcon.png")
+        try:
+            pil_save = Image.open(save_path).convert("RGBA")
+            save_img = customtkinter.CTkImage(light_image=pil_save, size=(24, 24))
+        except Exception as e:
+            print(f"Error cargando icono de guardar {save_path}: {e}")
+            save_img = None
 
-        # Botones
-        btn_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(pady=18, fill="x", padx=36)
-        btn_frame.grid_columnconfigure(0, weight=1)
-        btn_frame.grid_columnconfigure(1, weight=1)
-        
-        btn_cancel = customtkinter.CTkButton(
-            btn_frame,
-            text="Cancelar",
-            fg_color="#6C757D",
-            hover_color="#5A6268",
-            width=120,
-            height=38,
-            font=("Arial", 15, "bold"),
-            corner_radius=8,
-            command=self.master.destroy
-        )
-        btn_cancel.grid(row=0, column=0, padx=20)
-        
-        btn_save = customtkinter.CTkButton(
-            btn_frame,
+        customtkinter.CTkButton(
+            self,
             text="Guardar",
             image=save_img,
             compound="left",
             fg_color="#F18F01",
             hover_color="#D17E00",
-            width=120,
-            height=38,
-            font=("Arial", 15, "bold"),
-            corner_radius=8
-        )
-        btn_save.grid(row=0, column=1, padx=20)
+            width=180,
+            height=40,
+            command=self.save_settings
+        ).pack(pady=20)
+
+    def create_calibration_section(self):
+        # Determinar cuántos sliders necesita este actuador
+        if self.actuator_name.lower() == "conductividad eléctrica":
+            count = 3
+        elif self.actuator_name.lower() == "ph":
+            count = 2
+        else:
+            count = 1
+
+        frame_c = customtkinter.CTkFrame(self, fg_color="transparent")
+        frame_c.pack(padx=20, pady=(0, 20), fill="x")
+
+        for i in range(count):
+            frame_c.grid_columnconfigure(i * 3 + 1, weight=1)
+
+            label = customtkinter.CTkLabel(
+                frame_c,
+                text=f"Calibración Bomba {i+1}:" if count > 1 else "Calibración:",
+                text_color="white"
+            )
+            label.grid(row=i, column=0, padx=(0,10), pady=5)
+
+            slider = customtkinter.CTkSlider(
+                frame_c,
+                from_=0.1,
+                to=1.0,
+                number_of_steps=9,
+                command=lambda val, idx=i: self.update_calibration_value(val, idx)
+            )
+            slider.set(0.5)
+            slider.grid(row=i, column=1, sticky="ew", pady=5)
+
+            val_label = customtkinter.CTkLabel(
+                frame_c,
+                text=f"{slider.get():.2f}",
+                text_color="white"
+            )
+            val_label.grid(row=i, column=2, padx=(10, 0))
+
+            self.calibration_sliders.append((slider, val_label))
+
+
+    def update_calibration_value(self, value, idx):
+        self.calibration_sliders[idx][1].configure(text=f"{float(value):.2f}")
+
+    def save_settings(self):
+        calibraciones = [s.get() for s, _ in self.calibration_sliders]
+        intervalo = self.interval.get() if self.interval else "N/A"
+        print(f"Guardando - Calibraciones: {calibraciones}, Intervalo: {intervalo}")
+
 
 if __name__ == "__main__":
-    # Configuración inicial
     customtkinter.set_appearance_mode("Dark")
-    customtkinter.set_default_color_theme("blue")
-    
-    # Crear ventana principal
     root = customtkinter.CTk()
     root.geometry("1200x900")
-    root.title("Control de Actuadores - Sistema Hidropónico")
-    
-    # Vista principal
-    ActuatorsView(root).pack(fill="both", expand=True, padx=20, pady=20)
-    
-    # Iniciar aplicación
+    root.title("Vista de Actuadores")
+    ActuatorsView(root).pack(fill="both", expand=True)
     root.mainloop()
