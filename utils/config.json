@@ -1,7 +1,38 @@
 {
     "planta":{
       "id": 1,
-      "time": "2025-04-22"
+      "time": "2025-04-22",
+      "litros": 2,
+
+      "dias" : {
+        "germinacion" : 7,
+        "plantula" : 21,
+        "crecimiento" : 49,
+        "floracion" : 91,
+        "precosecha" : 105
+      },
+
+      "FloraGro" : {
+        "germinacion" : 0.25,
+        "plantula" : 0.5,
+        "crecimiento" : 1.5,
+        "floracion" : 1.0,
+        "precosecha" : 0
+      },
+      "FloraMicro" : {
+        "germinacion" : 0.5,
+        "plantula" : 1.0,
+        "crecimiento" : 2.0,
+        "floracion" : 1.5,
+        "precosecha" : 0
+      },
+      "FloraBloom" : {
+        "germinacion" : 0.25,
+        "plantula" : 0.5,
+        "crecimiento" : 0.5,
+        "floracion" : 2.0,
+        "precosecha" : 2.5
+      }
     },
     "email":{
       "email1": "joseangelalvarezx@gmail.com",
