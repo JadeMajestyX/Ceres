@@ -96,3 +96,10 @@ def status(tipo):
     with open("utils/config.json", "r") as f:
         data = json.load(f)
     return data["actuadores"][tipo]["status"]
+
+def update_tiempo_lectura(tiempo_lectura):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["sensores"]["tiempo_lectura"] = tiempo_lectura
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
