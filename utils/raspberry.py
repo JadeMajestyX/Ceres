@@ -39,6 +39,7 @@ class Raspberry:
             self.phless.bajo()
 
     def solucion_automatic(self):
+        
         status_solucion = status("solucion")
         time_on = get_tiempo_encendido("solucion", 1)
         if status_solucion == "True":

@@ -2,7 +2,7 @@ import customtkinter
 from PIL import Image  # Import PIL for image handling
 from tkinter import messagebox  # Import messagebox for displaying information dialogs
 from models.medicionesModel import MedicionesModel
-from utils.functions.functions import get_planta_id, nivel_de_agua
+from utils.functions.functions import get_planta_id, nivel_de_agua, tiempo
 from models.alertasModel import AlertasModel
 import json
 
@@ -78,7 +78,7 @@ class HomeView(customtkinter.CTkFrame):
         # Add a label to display the number of days the plant has been growing
         self.days_label = customtkinter.CTkLabel(
             self.bordered_box,
-            text="Días de cultivo: 15",
+            text="Días de cultivo: " + str(tiempo()),
             font=("Arial", 28, "bold"),
             text_color="#393939"
         )
