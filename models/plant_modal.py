@@ -13,7 +13,8 @@ class PlantModal(customtkinter.CTkToplevel):
         self.title("Nueva Planta" if mode == "new" else "Editar Planta")
         self.geometry("500x700")
         self.configure(fg_color="#f2e6cf")
-        self.grab_set()
+        self.after(0, self.grab_set)
+
         if on_save is None:
             def on_save(name, desc, params):
                 pass

@@ -30,6 +30,7 @@ class PlantsView(customtkinter.CTkFrame):
         self.selection_fr.grid(row=1, column=0, padx=30, pady=15, sticky="ew")
         self.selection_fr.grid_columnconfigure(1, weight=1)
 
+
         customtkinter.CTkLabel(
             self.selection_fr, text="Seleccionar Planta:",
             font=FONT_LABEL, text_color=BG
@@ -93,11 +94,10 @@ class PlantsView(customtkinter.CTkFrame):
         if not self.current:
             return
             
-        # Crear menú de opciones de edición
         option_menu = customtkinter.CTkToplevel(self)
         option_menu.title("Opciones de Edición")
         option_menu.geometry("300x200")
-        option_menu.grab_set()
+        option_menu.after(0, option_menu.grab_set)
         
         customtkinter.CTkLabel(
             option_menu, text="¿Qué deseas editar?",
