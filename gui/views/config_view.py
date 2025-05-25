@@ -23,7 +23,7 @@ class ConfigView(customtkinter.CTkFrame):
         self.read_time_option.pack(pady=5)
 
         # Pregunta de seguridad para cambiar contraseña
-        self.security_question_label = customtkinter.CTkLabel(self, text="¿Cuál es tu planeta enano favorito?")
+        self.security_question_label = customtkinter.CTkLabel(self, text="Coreo electrónico (pregunta de seguridad):")
         self.security_question_label.pack(pady=(20, 0))
         self.security_answer_entry = customtkinter.CTkEntry(self, width=200, placeholder_text="Respuesta")
         self.security_answer_entry.pack(pady=5)
@@ -72,7 +72,9 @@ class ConfigView(customtkinter.CTkFrame):
     def verify_security_answer(self):
         respuesta = self.security_answer_entry.get().strip().lower()
 
-        if respuesta == "ceres":
+        email = get_email().strip().lower()
+
+        if respuesta == email:
             self.password_entry.configure(state="normal")
             self.verification_message.configure(text="Respuesta correcta, puedes cambiar la contraseña.", text_color="green")
         else:
