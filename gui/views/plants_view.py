@@ -22,7 +22,7 @@ class PlantsView(customtkinter.CTkFrame):
 
         # Título 
         title = customtkinter.CTkLabel(
-            self, text="Gestión de Plantas",
+            self, text="⚙️ Gestión de Plantas",
             font=("Arial", 42, "bold"), text_color="white")
         title.grid(row=0, column=0, pady=(20, 30), sticky="n")
 
@@ -52,16 +52,19 @@ class PlantsView(customtkinter.CTkFrame):
 
         # Parámetros 
         self.params_fr = customtkinter.CTkScrollableFrame(
-            self, label_text="Parámetros de la Planta",
-            label_font=("Arial", 24, "bold"),
-            label_text_color="white", fg_color=PANEL)
+            self, label_text="Parámetros de la Planta 🪴",
+            label_font=("Arial", 28, "bold"),
+            label_text_color="white", 
+            fg_color=PANEL
+        )
         self.params_fr.grid(row=2, column=0, rowspan=4,
                           padx=30, pady=(10, 25), sticky="nsew")
-        self.params_fr.grid_columnconfigure(0, weight=1)
+        
+        self.params_fr.grid_columnconfigure((0,1), weight=1)
 
         # Guardar 
         self.btn_save = customtkinter.CTkButton(
-            self, text="Guardar Cambios", state="disabled",
+            self, text="💾 Guardar Cambios", state="disabled",
             font=("Arial", 20, "bold"),
             fg_color=ACCENT, hover_color=ACCENT_DARK,
             command=self.save_params)
@@ -209,41 +212,96 @@ class PlantsView(customtkinter.CTkFrame):
         self.btn_delete.configure(state="normal" if name else "disabled")
         self.btn_save.configure(state="normal" if name else "disabled")
         self._clear_params()
-        
+
         if not name:
             return
 
-        # Descripción
+        # ───────────────────────────────────────────────────────────
+        # DESDE AQUÍ TODO ES NUEVO ⇣
+        # Creamos dos sub‑frames: desc_frame (izq) y param_frame (der)
+        desc_frame = customtkinter.CTkFrame(self.params_fr, fg_color=PANEL)
+        desc_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+        param_frame = customtkinter.CTkFrame(self.params_fr, fg_color=PANEL)
+        param_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+
+        # ------------------------ Botón info (esquina superior‑izquierda)
+        info_btn = customtkinter.CTkButton(
+            param_frame,
+            text="ℹ",
+            width=24, height=24,
+            font=("Arial", 18, "bold"),
+            fg_color=ACCENT,
+            hover_color=ACCENT_DARK,
+            corner_radius=12,          # ► redondo
+            command=self._show_param_info
+        )
+        # Lo ubicamos en la esquina (fila 0, col 0) pero encima de todo:
+        info_btn.place(relx=1.0, rely=0.0, x=-2, y=1, anchor="ne")
+
+
+        # ------------------------ Descripción (izquierda)
         desc = self.manager.get_desc(name)
         customtkinter.CTkLabel(
-            self.params_fr, text=f"Descripción: {desc}",
-            wraplength=500, font=("Arial", 18), text_color="black"
-        ).grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+            desc_frame, text="Descripción:",
+            font=("Arial", 26, "bold"), text_color="black"
+        ).pack(anchor="center", pady=(0, 8))
 
-        # Campos de parámetros
+        customtkinter.CTkLabel(
+            desc_frame, text=desc,
+            wraplength=650,  # ajusta el ancho 
+            font=("Arial", 20), text_color="black", justify="left"
+        ).pack(anchor="center", padx=(30,0))
+
+        # ------------------------ Parámetros (derecha)
         params = self.manager.get_params(name)
         param_labels = [
-            ("Temperatura mínima (°C)", "temp_min"),
-            ("Temperatura máxima (°C)", "temp_max"),
-            ("PH mínimo", "ph_min"),
-            ("PH máximo", "ph_max"),
-            ("EC mínimo (%)", "ec_min"),
-            ("EC máximo (%)", "ec_max")
+            ("🌡 Temperatura mínima (°C)", "temp_min"),
+            ("🌡 Temperatura máxima (°C)", "temp_max"),
+            ("💧 PH mínimo",              "ph_min"),
+            ("💧PH máximo",              "ph_max"),
+            ("⚡ EC mínimo (%)",          "ec_min"),
+            ("⚡ EC máximo (%)",          "ec_max")
         ]
 
+        # configurar 3 columnas para el param_frame
+        param_frame.grid_columnconfigure((0, 1, 2), weight=0)
+
         self.entry_refs = {}
-        for i, (label, key) in enumerate(param_labels, start=1):
+        for i, (label_txt, key) in enumerate(param_labels):
+            row = i + 1  # porque la fila 0 la ocupa el botón
             customtkinter.CTkLabel(
-                self.params_fr, text=label, font=("Arial", 18),
-                text_color="black"
-            ).grid(row=i, column=0, padx=10, pady=10, sticky="w")
-            
+                param_frame, text=label_txt,  # ya no hace falta "ℹ"
+                font=("Arial", 20), text_color="black"
+            ).grid(row=row, column=1, padx=10, pady=10, sticky="w")
+
             e = customtkinter.CTkEntry(
-                self.params_fr, font=("Arial", 16),
-                border_color=ACCENT, height=35)
-            e.grid(row=i, column=1, padx=10, pady=10, sticky="ew")
+                param_frame, font=("Arial", 20),
+                fg_color="#2e2e2e", text_color="white",
+                border_color="#2e2e2e",
+                height=35, width=90, justify="center"
+            )
+            e.grid(row=row, column=2, padx=10, pady=10, sticky="e")
             e.insert(0, params.get(key, ""))
             self.entry_refs[key] = e
+
+            # ───────────────────────────────────────────────────────────
+
+
+    # ─── Ayuda sobre los parámetros ────────────────────────────────
+    def _show_param_info(self):
+        """Muestra una ventana con la explicación de cada parámetro."""
+        info = (
+            "🌡 Temperatura mínima / máxima (°C):\n"
+            "   Rango ideal de temperatura ambiente para la planta.\n\n"
+            "💧 PH mínimo / máximo:\n"
+            "   Acidez o alcalinidad del sustrato o agua de riego.\n\n"
+            "⚡ EC mínimo / máximo (%):\n"
+            "   Conductividad eléctrica; indica la concentración\n"
+            "   de nutrientes disueltos (fertilizantes)."
+        )
+        messagebox.showinfo("Información de los parámetros", info)
+
 
     def save_params(self):
         if not self.current:
