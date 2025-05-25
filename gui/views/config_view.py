@@ -16,7 +16,7 @@ class ConfigView(customtkinter.CTkFrame):
         self.read_time_label = customtkinter.CTkLabel(self, text="Tiempo de lectura del sensor:")
         self.read_time_label.pack(pady=(20, 0))
         self.read_time_option = customtkinter.CTkOptionMenu(
-            self, 
+            self,
             values=["30 minutos", "1 hora", "5 horas"]
         )
         self.read_time_option.set("30 minutos")  # Valor por defecto
@@ -34,6 +34,10 @@ class ConfigView(customtkinter.CTkFrame):
         self.password_entry = customtkinter.CTkEntry(self, width=200, show="*", placeholder_text="Nueva contraseña")
         self.password_entry.configure(state="disabled")
         self.password_entry.pack(pady=5)
+
+        # Mensaje de verificación
+        self.verification_message = customtkinter.CTkLabel(self, text="")
+        self.verification_message.pack(pady=5)
 
         # Botón para verificar respuesta
         self.verify_button = customtkinter.CTkButton(self, text="Verificar respuesta", command=self.verify_security_answer)
@@ -66,19 +70,14 @@ class ConfigView(customtkinter.CTkFrame):
         save_button.pack(pady=20)
 
     def verify_security_answer(self):
-        # Verificar la respuesta de seguridad
-        correo = get_email()
-        if correo:
-            self.email = correo
-        else:
-            self.email = None
+        respuesta = self.security_answer_entry.get().strip().lower()
 
-        respuesta = self.security_answer_entry.get()
-        if respuesta.strip().lower() == self.email.strip().lower():
+        if respuesta == "ceres":
             self.password_entry.configure(state="normal")
-            customtkinter.CTkLabel(self, text="Respuesta correcta, puedes cambiar la contraseña.").pack(pady=5)
+            self.verification_message.configure(text="Respuesta correcta, puedes cambiar la contraseña.", text_color="green")
         else:
-            customtkinter.CTkLabel(self, text="Respuesta incorrecta. Intenta de nuevo.", text_color="red").pack(pady=5)
+            self.password_entry.configure(state="disabled")
+            self.verification_message.configure(text="Respuesta incorrecta. Intenta de nuevo.", text_color="red")
 
     def save_config(self):
         tiempo_lectura = self.read_time_option.get()
@@ -91,19 +90,14 @@ class ConfigView(customtkinter.CTkFrame):
         elif tiempo_lectura == "5 horas":
             update_tiempo_lectura(18000)
 
-        #actualizar email si se ha definido
+        # Guardar correo si se ha definido
         if self.email:
-            # Aquí puedes agregar la lógica para guardar el correo electrónico
             update_email(self.email)
 
-        #cambiar contraseña si se ha definido
+        # Cambiar contraseña si es válida
         if nueva_contrasena:
-            # Aquí puedes agregar la lógica para cambiar la contraseña
             update_password(nueva_contrasena)
-            
-            
 
         print("Tiempo de lectura:", tiempo_lectura)
         print("Correo electrónico:", self.email if self.email else "No definido")
         print("Nueva contraseña:", nueva_contrasena if nueva_contrasena else "No modificada")
-        # Aquí puedes agregar lógica adicional para guardar los datos
