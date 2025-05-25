@@ -5,6 +5,9 @@ from gui.views.home_view import HomeView
 from gui.views.actuators_view import ActuatorsView
 from gui.views.plants_view import PlantsView
 from gui.views.sensores_view import SensoresView
+from gui.views.config_view import ConfigView
+from gui.views.config_view import ConfigView
+
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -29,6 +32,9 @@ class App(customtkinter.CTk):
                                                      dark_image=Image.open(os.path.join(image_path, "actuator_light.png")), size=(20, 20))
         self.plantas = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "plant-dark.png")),
                                                      dark_image=Image.open(os.path.join(image_path, "plant-light.png")), size=(20, 20))
+        self.config = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "config.png")),
+                                     dark_image=Image.open(os.path.join(image_path, "config.png")), size=(20, 20))
+
 
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
@@ -58,6 +64,11 @@ class App(customtkinter.CTk):
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                       image=self.plantas, anchor="w", command=self.frame_4_button_event)
         self.frame_4_button.grid(row=4, column=0, sticky="ew")
+        self.config_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Configuración",
+                                             fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                             image=self.config, anchor="w", command=self.config_button_event)
+        self.config_button.grid(row=5, column=0, sticky="ew")
+
 
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["Light", "Dark", "System"],
                                                                 command=self.change_appearance_mode_event)
@@ -77,6 +88,10 @@ class App(customtkinter.CTk):
 
 
         self.plants_frame = PlantsView(self) #plantas
+
+        self.config_frame = ConfigView(self)
+        self.config_frame.grid_columnconfigure(0, weight=1)
+
 
 
         # select default frame
@@ -107,6 +122,13 @@ class App(customtkinter.CTk):
               self.plants_frame.grid(row=0, column=1, sticky="nsew")  #aquí estaba mal, se repetia el third_frame
         else:
             self.plants_frame.grid_forget()
+            self.config_button.configure(fg_color=("gray75", "gray25") if name == "configuracion" else "transparent")
+
+        if name == "configuracion":
+            self.config_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.config_frame.grid_forget()
+
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -119,6 +141,10 @@ class App(customtkinter.CTk):
 
     def frame_4_button_event(self):
         self.select_frame_by_name("frame_4")
+        
+    def config_button_event(self):
+        self.select_frame_by_name("configuracion")
+
 
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
