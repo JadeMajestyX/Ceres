@@ -1,75 +1,72 @@
 {
-    "planta":{
-      "id": 1,
-      "time": "2025-04-22",
-      "litros": 2,
-
-      "dias" : {
-        "germinacion" : 7,
-        "plantula" : 21,
-        "crecimiento" : 49,
-        "floracion" : 91,
-        "precosecha" : 105
-      },
-
-      "FloraGro" : {
-        "germinacion" : 0.25,
-        "plantula" : 0.5,
-        "crecimiento" : 1.5,
-        "floracion" : 1.0,
-        "precosecha" : 0
-      },
-      "FloraMicro" : {
-        "germinacion" : 0.5,
-        "plantula" : 1.0,
-        "crecimiento" : 2.0,
-        "floracion" : 1.5,
-        "precosecha" : 0
-      },
-      "FloraBloom" : {
-        "germinacion" : 0.25,
-        "plantula" : 0.5,
-        "crecimiento" : 0.5,
-        "floracion" : 2.0,
-        "precosecha" : 2.5
-      }
+    "planta": {
+        "id": 3,
+        "time": "2025-04-22",
+        "litros": 2,
+        "dias": {
+            "germinacion": 7,
+            "plantula": 21,
+            "crecimiento": 49,
+            "floracion": 91,
+            "precosecha": 105
+        },
+        "FloraGro": {
+            "germinacion": 0.25,
+            "plantula": 0.5,
+            "crecimiento": 1.5,
+            "floracion": 1.0,
+            "precosecha": 0
+        },
+        "FloraMicro": {
+            "germinacion": 0.5,
+            "plantula": 1.0,
+            "crecimiento": 2.0,
+            "floracion": 1.5,
+            "precosecha": 0
+        },
+        "FloraBloom": {
+            "germinacion": 0.25,
+            "plantula": 0.5,
+            "crecimiento": 0.5,
+            "floracion": 2.0,
+            "precosecha": 2.5
+        }
     },
-    "email":{
-      "email1": "joseangelalvarezx@gmail.com",
-      "email2": "rgregorio0@ucol.mx",
-      "email3": ""
+    "email": {
+        "email1": "joseangelalvarezx@gmail.com",
+        "email2": "rgregorio0@ucol.mx",
+        "email3": ""
     },
-    "sensores":{
-      "tiempo_lectura": 5,
-      "nivel_agua":{
-        "valor_minimo": 100,
-        "valor_maximo": 25
-      }
+    "sensores": {
+        "tiempo_lectura": 5,
+        "nivel_agua": {
+            "valor_minimo": 100,
+            "valor_maximo": 25
+        }
     },
     "actuadores": {
-      "bomba": {
-        "pin1": 17,
-        "time_off": 5,
-        "time_on1" : 5,
-        "status": "True"
-      },
-      "ph": {
-        "pin1": 27,
-        "pin2" : 22,
-        "time_on1": 0.07,
-        "time_on2": 0.07,
-        "status": "True"
-      },
-      "solucion":{
-        "pin1": 23,
-        "pin2": 24,
-        "pin3": 25,
-        "time_on1": 0.05,
-        "time_on2": 0.05,
-        "time_on3": 0.06,
-        "status": "True"
-      }
+        "bomba": {
+            "pin1": 17,
+            "time_off": 5,
+            "time_on1": 5,
+            "status": "True"
+        },
+        "ph": {
+            "pin1": 27,
+            "pin2": 22,
+            "time_on1": 0.07,
+            "time_on2": 0.07,
+            "status": "True"
+        },
+        "solucion": {
+            "pin1": 23,
+            "pin2": 24,
+            "pin3": 25,
+            "time_on1": 0.05,
+            "time_on2": 0.05,
+            "time_on3": 0.06,
+            "status": "True"
+        }
     },
-    "password" : "1234"
-  }
-  
+    "password": "1234"
+}

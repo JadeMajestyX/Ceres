@@ -1,4 +1,5 @@
 from config.Database import Database
+# from utils.functions.functions import update_planta
 
 class PlantasModel:
     def __init__(self):
@@ -110,6 +111,8 @@ class PlantasModel:
             conn.close()
     
     def guardar_parametros(self, planta_id: int, parametros: dict):
+        from utils.functions.functions import update_planta  # <--- importar dentro de la función
+        update_planta(planta_id)
         conn = self.db.connect()
         cursor = conn.cursor()
         try:

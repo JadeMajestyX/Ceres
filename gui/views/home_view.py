@@ -662,6 +662,9 @@ class HomeView(customtkinter.CTkFrame):
         except Exception as e:
             # En caso de error, opcionalmente mostrar en consola o label de error
             print(f"Error actualizando mediciones: {e}")
+            for i in range(10):
+                MedicionesModel().agregar_medicion(get_planta_id(), 0, 0, 0, 0)
+
         finally:
             # Reprograma la siguiente actualización
             self.after(5000, self.update_mediciones)
