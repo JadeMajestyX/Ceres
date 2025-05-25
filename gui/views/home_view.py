@@ -86,21 +86,22 @@ class HomeView(customtkinter.CTkFrame):
 
         alertas = AlertasModel().obtener_alertas(get_planta_id())
 
-        # Function to update the image based on values
-        def update_status_image(values):
-            if all(value == "good" for value in values):
-                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(160, 160))
-                self.status_image_label.configure(image=image)
-            elif sum(1 for value in values if value == "bad") <= 2:
-                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(160, 160))
-                self.status_image_label.configure(image=image)
-            else:
-                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(160, 160))
-                self.status_image_label.configure(image=image)
+        def update_status_image_por_alertas(alertas):
+            cantidad_alertas = len(alertas)
 
-        # Replace these with actual logic to determine the status of each value
-        example_values = ["good", "bad", "good", "bad"]
-        update_status_image(example_values)
+            if cantidad_alertas == 0:
+                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(160, 160))
+            elif 3 < cantidad_alertas > 0:
+                image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(160, 160))
+            elif cantidad_alertas > 5:
+                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(160, 160))
+            else:
+                image = customtkinter.CTkImage(Image.open("icons/mal.png"), size=(160, 160))  # O una imagen por defecto
+
+            self.status_image_label.configure(image=image)
+
+        update_status_image_por_alertas(alertas)
+
 
         #####################################
         #### Recuadro superior derecho ######
