@@ -47,8 +47,8 @@
     "actuadores": {
         "bomba": {
             "pin1": 17,
-            "time_off": 5,
-            "time_on1": 5,
+            "time_off": 600,
+            "time_on1": 600,
             "status": "True"
         },
         "ph": {

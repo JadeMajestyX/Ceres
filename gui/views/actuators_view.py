@@ -1,6 +1,8 @@
 import customtkinter
 from PIL import Image
 import os
+from utils.functions.functions import get_status_actuador, update_status_actuador, upadate_tiempo_bomba, update_tiempo_bomba_on
+from config.security import check_password
 
 class ActuatorsView(customtkinter.CTkFrame):
     """
@@ -105,11 +107,41 @@ class ActuatorsView(customtkinter.CTkFrame):
             height=60
         )
         switch_btn.grid(row=0, column=3, padx=10, pady=0)
-        switch_btn.is_on = False
-        def toggle_state(btn=switch_btn, img_on=on_img, img_off=off_img):
-            btn.is_on = not btn.is_on
-            btn.configure(image= img_on if btn.is_on else img_off)
-        switch_btn.configure(command=toggle_state)
+        # Obtener estado inicial usando get_status_actuador
+
+        if(title == "Nivel de Agua"):
+            nombre_actuador = "bomba"
+        elif(title == "Conductividad Eléctrica"):
+            nombre_actuador = "solucion"
+        elif(title == "pH"):
+            nombre_actuador = "ph"
+
+        estado_inicial = get_status_actuador(nombre_actuador)  # True o False
+
+        if estado_inicial == "True":
+            estado_inicial = True
+        elif estado_inicial == "False":
+            estado_inicial = False
+
+        switch_btn = customtkinter.CTkButton(
+            box,
+            image=on_img if estado_inicial else off_img,
+            text="",
+            fg_color="#9CD2D3",
+            hover_color="#9CD2D3",
+            width=100,
+            height=60,
+        )
+        switch_btn.is_on = estado_inicial  # Asignar atributo aquí
+
+        # Luego asignar el comando que lo use
+        switch_btn.configure(command=lambda btn=switch_btn, name=nombre_actuador: self.toggle_actuator(btn, name, on_img, off_img))
+
+        switch_btn.grid(row=0, column=3, padx=10, pady=0)
+
+
+
+
 
         # Botón ajustes con fondo del recuadro
         gear_path = os.path.join(self.icon_dir, "settings.png")
@@ -149,6 +181,24 @@ class ActuatorsView(customtkinter.CTkFrame):
         win.focus_force()
 
         ConfigOptions(win, actuator_name=title).pack(fill="both", expand=True)
+
+    def toggle_actuator(self, switch_btn, actuator_name, on_img, off_img):
+        if switch_btn.is_on:
+            # Intentar apagar → requiere contraseña
+            if not check_password():
+                return  # No hacer nada si la contraseña es incorrecta
+
+        # Cambiar el estado
+        switch_btn.is_on = not switch_btn.is_on
+        # Actualizar imagen
+        switch_btn.configure(image=on_img if switch_btn.is_on else off_img)
+        # Actualizar estado en base de datos o archivo
+        estado = "encendido" if switch_btn.is_on else "apagado"
+        print(f"{actuator_name} {estado}")
+        new = "True" if estado == "encendido" else "False"
+        update_status_actuador(actuator_name, new)
+
+
 
 
 
@@ -282,6 +332,19 @@ class ConfigOptions(customtkinter.CTkFrame):
         calibraciones = [s.get() for s, _ in self.calibration_sliders]
         intervalo = self.interval.get() if self.interval else "N/A"
         print(f"Guardando - Calibraciones: {calibraciones}, Intervalo: {intervalo}")
+        if intervalo == "Siempre":
+            tiempo = 0
+            upadate_tiempo_bomba(0)
+            update_tiempo_bomba_on(60000)
+        elif intervalo == "10 minutos":
+            tiempo = 10
+            upadate_tiempo_bomba(600)
+            update_tiempo_bomba_on(600)
+        elif intervalo == "30 minutos":
+            tiempo = 30
+            upadate_tiempo_bomba(1800)
+            update_tiempo_bomba_on(1800)
+
 
 
 if __name__ == "__main__":

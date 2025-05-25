@@ -19,6 +19,39 @@ def get_nombre_planta():
         return planta['nombre']
     
 
+def get_status_actuador(tipo):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["actuadores"][tipo]["status"]
+
+def update_status_actuador(tipo, status):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["actuadores"][tipo]["status"] = status
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def upadate_tiempo_bomba(tiempo_bomba):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["actuadores"]["bomba"]["time_off"] = tiempo_bomba
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def update_tiempo_bomba_on(tiempo_bomba_on):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["actuadores"]["bomba"]["time_on1"] = tiempo_bomba_on
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def update_tiempo_lectura(tiempo_lectura):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["sensores"]["tiempo_lectura"] = tiempo_lectura
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
 def tiempo():
     with open("utils/config.json", "r") as f:
         data = json.load(f)
