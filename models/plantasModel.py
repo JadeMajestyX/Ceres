@@ -83,6 +83,23 @@ class PlantasModel:
             cursor.close()
             conn.close()
     
+    def get_planta_id(self, planta_id: int):
+        conn = self.db.connect()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                "SELECT * FROM plantas WHERE id = %s",
+                (planta_id,))
+            return cursor.fetchone()
+        except Exception as e:
+            print(f"Error al obtener planta por ID: {e}")
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+
+
+
     def obtener_todas_las_plantas(self):
         conn = self.db.connect()
         cursor = conn.cursor(dictionary=True)

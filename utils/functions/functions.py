@@ -10,6 +10,15 @@ def get_planta_id():
         data = json.load(f)
     return data["planta"]["id"]
 
+def get_nombre_planta():
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    id = data["planta"]["id"]
+    planta = PlantasModel().get_planta_id(id)
+    if planta:
+        return planta['nombre']
+    
+
 def tiempo():
     with open("utils/config.json", "r") as f:
         data = json.load(f)

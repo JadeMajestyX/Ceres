@@ -18,6 +18,7 @@ class PlantsView(customtkinter.CTkFrame):
         super().__init__(master, **kwargs)
         self.configure(fg_color=BG)
         self.manager = PlantManager()
+        
 
         # Título 
         title = customtkinter.CTkLabel(
@@ -72,6 +73,23 @@ class PlantsView(customtkinter.CTkFrame):
 
         self.current = None
         self.entry_refs = {}
+
+        plantas = self._get_plant_names()  # ['jitomate', 'Lechuga', 'Tomates']
+        from utils.functions.functions import get_nombre_planta
+        nombre = get_nombre_planta()  # 'jitomate'
+
+        print(plantas)
+
+        if plantas:
+            if nombre in plantas:
+                index = plantas.index(nombre)
+                print(f"Índice donde coincide: {index}")
+                
+                self.current = plantas[index]  # o directamente: self.current = nombre
+                self.combo.set(self.current)
+                self.on_select(self.current)
+
+
 
     def _get_plant_names(self):
         plantas = self.manager.plants_model.obtener_todas_las_plantas()
