@@ -38,7 +38,7 @@
         "email3": ""
     },
     "sensores": {
-        "tiempo_lectura": 5,
+        "tiempo_lectura": 60,
         "nivel_agua": {
             "valor_minimo": 100,
             "valor_maximo": 25
@@ -47,8 +47,8 @@
     "actuadores": {
         "bomba": {
             "pin1": 17,
-            "time_off": 600,
-            "time_on1": 600,
+            "time_off": 6,
+            "time_on1": 6,
             "status": "True"
         },
         "ph": {
@@ -56,7 +56,7 @@
             "pin2": 22,
             "time_on1": 0.07,
             "time_on2": 0.07,
-            "status": "True"
+            "status": "False"
         },
         "solucion": {
             "pin1": 23,
@@ -65,7 +65,7 @@
             "time_on1": 0.05,
             "time_on2": 0.05,
             "time_on3": 0.06,
-            "status": "True"
+            "status": "False"
         }
     },
     "password": "1234"

@@ -1,5 +1,5 @@
 from controllers.Controller import Controller
-from utils.functions.functions import get_tiempo_sensores, get_planta_id, get_pin, tiempo
+from utils.functions.functions import get_tiempo_sensores, get_planta_id, get_pin, tiempo, status
 from models.parametrosModel import parametrosModel
 from models.medicionesModel import MedicionesModel
 from models.actuadoresModel import ActuadoresModel
@@ -35,34 +35,37 @@ class SolucionController(Controller):
         self._running = True
 
         while self._running:
-            try:
+            solution_status = status("solucion")
+            if solution_status == "True":
+            
                 planta_id = get_planta_id()
                 tiempo_medicion = MedicionesModel().obtener_medicion(planta_id, "time")  # Puede ser str o datetime
-                print(f"Tiempo de medición: {tiempo_medicion}")
                 id_medicion = MedicionesModel().obtener_medicion(planta_id, "id")
                 ec = MedicionesModel().obtener_medicion(planta_id, "ec")
                 ecmin = parametrosModel().obtener_parametro(planta_id, "ecmin")
                 ecmax = parametrosModel().obtener_parametro(planta_id, "ecmax")
                 wait = get_tiempo_sensores()
+                    
 
-                # Convertir a datetime si es string
+                    # Convertir a datetime si es string
                 if isinstance(tiempo_medicion, str):
                     tiempo_medicion = datetime.strptime(tiempo_medicion, "%Y-%m-%d %H:%M:%S")
+                    print(f"Tiempo de medición convertido: {tiempo_medicion}")
 
                 ahora = datetime.now()
                 diferencia = (ahora - tiempo_medicion).total_seconds()
-
                 if diferencia < 10:  # Solo si la medición es reciente (<10 segundos)
+                    
                     if ec < ecmin:
                         self.activar_con_pulso(self, 2.5)
                         ActuadoresModel().agregar_accion(id_medicion, "solucion", "activo")
                         self.activar_con_pulso(self.solucion2, 5)
                         self.activar_con_pulso(self.solucion3, 2.5)
+            else:
+                self.alto()
+                time.sleep(1)
 
-                time.sleep(wait)
-            except Exception as e:
-                print(f"Error en automatic(): {e}")
-                time.sleep(5)
+
 
         
     def stop(self):

@@ -16,7 +16,7 @@ class Raspberry:
     def bomba_automatic(self):
         status_bomb = status("bomba")
         time_off = get_tiempo_apagado("bomba")
-        time_on = get_tiempo_encendido("bomba")
+        time_on = get_tiempo_encendido("bomba", 1)
         if status_bomb == "True":
             self.bomba.automatic(time_on, time_off)
         else:
@@ -25,7 +25,7 @@ class Raspberry:
     def ph_automatic(self):
         status_ph= status("ph")
         ph_time_on = get_tiempo_encendido("ph", 1)
-        if status_ph:
+        if status_ph == "True":
             self.ph.automatic(ph_time_on)
         else:
             self.ph.bajo()
