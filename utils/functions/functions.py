@@ -153,3 +153,29 @@ def update_planta(id_planta):
     data["planta"]["id"] = id_planta
     with open("utils/config.json", "w") as f:
         json.dump(data, f, indent=4)
+
+def update_tiempo_lectura(tiempo):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["sensores"]["tiempo_lectura"] = tiempo
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def update_email(email):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["email"]['email'] = email
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def update_password(password):
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    data["password"] = password
+    with open("utils/config.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def get_email():
+    with open("utils/config.json", "r") as f:
+        data = json.load(f)
+    return data["email"]["email"]

@@ -33,9 +33,7 @@
         }
     },
     "email": {
-        "email1": "joseangelalvarezx@gmail.com",
-        "email2": "rgregorio0@ucol.mx",
-        "email3": ""
+        "email": "joseangelalvarezx@gmail.com"
     },
     "sensores": {
         "tiempo_lectura": 60,
