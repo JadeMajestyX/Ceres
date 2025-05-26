@@ -36,7 +36,7 @@
         "email": "joseangelalvarezx@gmail.com"
     },
     "sensores": {
-        "tiempo_lectura": 6,
+        "tiempo_lectura": 1800,
         "nivel_agua": {
             "valor_minimo": 100,
             "valor_maximo": 25

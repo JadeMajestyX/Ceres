@@ -25,24 +25,18 @@ class Raspberry:
     def ph_automatic(self):
         status_ph= status("ph")
         ph_time_on = get_tiempo_encendido("ph", 1)
-        if status_ph == "True":
-            self.ph.automatic(ph_time_on)
-        else:
-            self.ph.bajo()
+        self.ph.automatic(ph_time_on)
+
+
 
     def phless_automatic(self):
         status_phless = status("ph")
         phless_time_on = get_tiempo_encendido("ph", 2)
-        if status_phless == "True":
-            self.phless.automatic(phless_time_on)
-        else:
-            self.phless.bajo()
+        self.phless.automatic(phless_time_on)
+
 
     def solucion_automatic(self):
         
         status_solucion = status("solucion")
         time_on = get_tiempo_encendido("solucion", 1)
-        if status_solucion == "True":
-            self.solucion.automatic(time_on)
-        else:
-            self.solucion.bajo()
+        self.solucion.automatic(time_on)

@@ -2,7 +2,7 @@ import serial
 import time
 from models.medicionesModel import MedicionesModel
 from models.alertasModel import AlertasModel
-from utils.functions.functions import get_planta_id
+from utils.functions.functions import get_planta_id, get_tiempo_sensores
 import json
 
 def leer_arduino(planta_id, tiempo_lectura):
@@ -19,6 +19,7 @@ def leer_arduino(planta_id, tiempo_lectura):
 
     while True:
         plant_id = get_planta_id()
+        tiempo_lectura = get_tiempo_sensores()
         try:
             if arduino is None or not arduino.is_open:
                 try:
@@ -59,6 +60,7 @@ def leer_arduino(planta_id, tiempo_lectura):
 
             while True:
                 plant_id = get_planta_id()
+                tiempo_lectura = get_tiempo_sensores()
                 try:
                     time.sleep(tiempo_lectura)
                     arduino.write(b'S')
