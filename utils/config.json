@@ -36,7 +36,7 @@
         "email": "joseangelalvarezx@gmail.com"
     },
     "sensores": {
-        "tiempo_lectura": 60,
+        "tiempo_lectura": 6,
         "nivel_agua": {
             "valor_minimo": 100,
             "valor_maximo": 25
@@ -54,7 +54,7 @@
             "pin2": 22,
             "time_on1": 0.07,
             "time_on2": 0.07,
-            "status": "False"
+            "status": "True"
         },
         "solucion": {
             "pin1": 23,
@@ -63,7 +63,7 @@
             "time_on1": 0.05,
             "time_on2": 0.05,
             "time_on3": 0.06,
-            "status": "False"
+            "status": "True"
         }
     },
     "password": "1234"

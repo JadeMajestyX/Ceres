@@ -90,7 +90,7 @@ class HomeView(customtkinter.CTkFrame):
             cantidad_alertas = len(alertas)
 
             if cantidad_alertas == 0:
-                image = customtkinter.CTkImage(Image.open("icons/Muy bien.png"), size=(160, 160))
+                image = customtkinter.CTkImage(Image.open("icons/muy bien.png"), size=(160, 160))
             elif 3 < cantidad_alertas > 0:
                 image = customtkinter.CTkImage(Image.open("icons/maso menos.png"), size=(160, 160))
             elif cantidad_alertas > 5:

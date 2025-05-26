@@ -2,6 +2,7 @@ import serial
 import time
 from models.medicionesModel import MedicionesModel
 from models.alertasModel import AlertasModel
+from utils.functions.functions import get_planta_id
 import json
 
 def leer_arduino(planta_id, tiempo_lectura):
@@ -17,19 +18,20 @@ def leer_arduino(planta_id, tiempo_lectura):
         return ultima_linea
 
     while True:
+        plant_id = get_planta_id()
         try:
             if arduino is None or not arduino.is_open:
                 try:
                     arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=1)
                 except serial.SerialException:
                     print("No se detectó el puerto")
-                    AlertasModel().agregar_alerta(planta_id, "No se detectó el Arduino")
+                    AlertasModel().agregar_alerta(plant_id, "No se detectó el Arduino")
                     time.sleep(5)
                     continue
 
                 time.sleep(4)
                 arduino.reset_input_buffer()
-                AlertasModel().alerta_solucionada(planta_id, "No se detectó el Arduino")
+                AlertasModel().alerta_solucionada(plant_id, "No se detectó el Arduino")
 
                 arduino.write(b'S')
                 time.sleep(0.5)
@@ -40,22 +42,23 @@ def leer_arduino(planta_id, tiempo_lectura):
                         mediciones = json.loads(data)
                         if 'temperature' in mediciones:
                             MedicionesModel().agregar_medicion(
-                                planta_id,
+                                plant_id,
                                 mediciones['temperature'],
                                 mediciones['ph'],
                                 mediciones['ec'],
-                                mediciones['water_level']
+                                mediciones['distance_cm']
                             )
-                            AlertasModel().alerta_solucionada(planta_id, "Los datos del Arduino son incorrectos")
-                            AlertasModel().alerta_solucionada(planta_id, "No se recibieron datos del Arduino")
+                            AlertasModel().alerta_solucionada(plant_id, "Los datos del Arduino son incorrectos")
+                            AlertasModel().alerta_solucionada(plant_id, "No se recibieron datos del Arduino")
                         else:
-                            AlertasModel().agregar_alerta(planta_id, "Los datos del Arduino son incorrectos")
+                            AlertasModel().agregar_alerta(plant_id, "Los datos del Arduino son incorrectos")
                     except json.JSONDecodeError:
-                        AlertasModel().agregar_alerta(planta_id, "Los datos del Arduino no tienen formato JSON")
+                        AlertasModel().agregar_alerta(plant_id, "Los datos del Arduino no tienen formato JSON")
                 else:
-                    AlertasModel().agregar_alerta(planta_id, "No se recibieron datos del Arduino")
+                    AlertasModel().agregar_alerta(plant_id, "No se recibieron datos del Arduino")
 
             while True:
+                plant_id = get_planta_id()
                 try:
                     time.sleep(tiempo_lectura)
                     arduino.write(b'S')
@@ -65,22 +68,24 @@ def leer_arduino(planta_id, tiempo_lectura):
                     if data:
                         try:
                             mediciones = json.loads(data)
+                            print("Mediciones:", mediciones)
                             if 'temperature' in mediciones:
+                                print("Mediciones:", mediciones)
                                 MedicionesModel().agregar_medicion(
-                                    planta_id,
+                                    plant_id,
                                     mediciones['temperature'],
                                     mediciones['ph'],
                                     mediciones['ec'],
-                                    mediciones['water_level']
+                                    mediciones['distance_cm']
                                 )
-                                AlertasModel().alerta_solucionada(planta_id, "Los datos del Arduino son incorrectos")
-                                AlertasModel().alerta_solucionada(planta_id, "No se recibieron datos del Arduino")
+                                AlertasModel().alerta_solucionada(plant_id, "Los datos del Arduino son incorrectos")
+                                AlertasModel().alerta_solucionada(plant_id, "No se recibieron datos del Arduino")
                             else:
-                                AlertasModel().agregar_alerta(planta_id, "Los datos del Arduino son incorrectos")
+                                AlertasModel().agregar_alerta(plant_id, "Los datos del Arduino son incorrectos")
                         except json.JSONDecodeError:
-                            AlertasModel().agregar_alerta(planta_id, "Los datos del Arduino no tienen formato JSON")
+                            AlertasModel().agregar_alerta(plant_id, "Los datos del Arduino no tienen formato JSON")
                     else:
-                        AlertasModel().agregar_alerta(planta_id, "No se recibieron datos del Arduino")
+                        AlertasModel().agregar_alerta(plant_id, "No se recibieron datos del Arduino")
 
                 except serial.SerialException:
                     if arduino:
@@ -93,7 +98,7 @@ def leer_arduino(planta_id, tiempo_lectura):
             break
 
         except Exception as e:
-            AlertasModel().agregar_alerta(planta_id, f"Error inesperado: {str(e)}")
+
             if arduino:
                 arduino.close()
             time.sleep(5)

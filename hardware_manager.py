@@ -68,9 +68,7 @@ def main():
         emails = get_email()
 
         # Asigna a variables
-        email1 = emails['email1']
-        email2 = emails['email2']
-        email3 = emails['email3']
+
         
         # if email1 != "":
         #     EmailController().enviar_email(email1, "Alerta de la planta", "Se ha detectado un problema en la planta")
