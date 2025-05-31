@@ -33,7 +33,7 @@
         }
     },
     "email": {
-        "email": "joseangelalvarezx@gmail.com"
+        "email": "a@ucol.mx"
     },
     "sensores": {
         "tiempo_lectura": 1800,
@@ -45,9 +45,9 @@
     "actuadores": {
         "bomba": {
             "pin1": 17,
-            "time_off": 6,
-            "time_on1": 6,
-            "status": "True"
+            "time_off": 600,
+            "time_on1": 600,
+            "status": "False"
         },
         "ph": {
             "pin1": 27,
@@ -66,5 +66,5 @@
             "status": "True"
         }
     },
-    "password": "1234"
+    "password": "a"
 }
