@@ -213,25 +213,3 @@ Ceres/
 |  |- raspberry.py
 ```
 
-## Problemas comunes
-
-- Error de GPIO en Windows:
-  - `RPi.GPIO` no funciona fuera de Raspberry Pi. Ejecuta la automatizacion en Raspberry o usa mocks.
-
-- No se detecta Arduino:
-  - Verifica puerto serial en `utils/arduino.py`.
-  - Revisa permisos del puerto (`/dev/ttyUSB0`).
-
-- Error de conexion MySQL:
-  - Confirma servidor activo, credenciales y base `Ceres`.
-  - Revisa consistencia de password entre `config/Database.py` y `mail.py`.
-
-- GUI no abre por dependencias:
-  - Instala `customtkinter`, `pillow` y `matplotlib`.
-
-## Mejoras recomendadas
-
-- Unificar configuracion de DB con variables de entorno.
-- Completar `requirements.txt` con todas las dependencias reales.
-- Agregar scripts de arranque para Windows y Linux.
-- Documentar esquema SQL de tablas.
