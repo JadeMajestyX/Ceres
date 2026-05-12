@@ -68,7 +68,7 @@ El archivo `requirements.txt` actual solo contiene `flask`, pero en el codigo se
 1. Clona el repositorio y entra al directorio:
 
 ```bash
-git clone <url-del-repo>
+git clone https://github.com/JadeMajestyX/Ceres
 cd Ceres
 ```
 
